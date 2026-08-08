@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요한복음 21주 말씀런 · 조원용</title>
+<style>
+  :root {
+    --bg: #f5efe1;
+    --bg-soft: #ebe2cd;
+    --ink: #1c2431;
+    --ink-soft: #55524a;
+    --navy: #1f3b57;
+    --navy-soft: #2c4d6e;
+    --gold: #b9862f;
+    --gold-soft: #e8cf9a;
+    --card: #fffdf7;
+    --border: #ddd0ad;
+    --ring: #b9862f;
+    --danger: #a3402e;
+    --danger-soft: #f3ddd5;
+    --ok: #3f6b3f;
+    --ok-soft: #dcead9;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1420;
+    --bg-soft: #131d2d;
+    --ink: #ece4d2;
+    --ink-soft: #b7ac93;
+    --navy: #9fc2e8;
+    --navy-soft: #6f97c2;
+    --gold: #e8c26b;
+    --gold-soft: #4a3d20;
+    --card: #131b29;
+    --border: #2b3a4f;
+    --ring: #e8c26b;
+    --danger: #e08a72;
+    --danger-soft: #3a2119;
+    --ok: #8fcf8a;
+    --ok-soft: #17301a;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1420;
+      --bg-soft: #131d2d;
+      --ink: #ece4d2;
+      --ink-soft: #b7ac93;
+      --navy: #9fc2e8;
+      --navy-soft: #6f97c2;
+      --gold: #e8c26b;
+      --gold-soft: #4a3d20;
+      --card: #131b29;
+      --border: #2b3a4f;
+      --ring: #e8c26b;
+      --danger: #e08a72;
+      --danger-soft: #3a2119;
+      --ok: #8fcf8a;
+      --ok-soft: #17301a;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); overflow-x: hidden; }
+  body {
+    font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    line-height: 1.5;
+    padding: clamp(12px, 4vw, 32px) clamp(12px, 4vw, 32px) 64px;
+  }
+  .page { width: 100%; max-width: 640px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .member-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: #fff;
+  }
+  :root[data-theme="dark"] .member-badge { background: var(--gold); color: #1a1305; }
+  @media (prefers-color-scheme: dark) { .member-badge { background: var(--gold); color: #1a1305; } }
+
+  h1 {
+    font-family: "Noto Serif KR", "Nanum Myeongjo", "Batang", serif;
+    font-weight: 700;
+    font-size: clamp(1.35rem, 5vw, 1.9rem);
+    margin: 0 0 4px;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .sub { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 18px; }
+
+  .theme-toggle {
+    position: fixed;
+    top: 12px; right: 12px;
+    font-family: inherit;
+    font-size: 0.74rem;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    z-index: 5;
+  }
+  .theme-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+  .status-bar {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .status-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .status-title { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+  .status-title .gold { color: var(--gold); }
+  .status-day {
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: var(--card);
+  }
+  :root[data-theme="dark"] .status-day { background: var(--gold-soft); color: var(--gold); }
+  @media (prefers-color-scheme: dark) { .status-day { background: var(--gold-soft); color: var(--gold); } }
+
+  .status-nav { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .sync-code-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .sync-code-row input { flex: 1; min-width: 160px; }
+  .nav-btn, .action-btn {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .action-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .nav-btn:focus-visible, .action-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .action-btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  :root[data-theme="dark"] .action-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; }
+  @media (prefers-color-scheme: dark) { .action-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; } }
+  .action-btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+  .action-btn.armed { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .status-note { color: var(--ink-soft); font-size: 0.78rem; margin-top: 8px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 9px 14px;
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--gold); }
+  .tab-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  .empty-note {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    background: var(--bg-soft);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .quiz-ref { font-size: 0.78rem; color: var(--gold); font-weight: 700; margin: 0 0 6px; }
+  .quiz-blank { font-size: 1.02rem; margin: 0 0 14px; }
+
+  input[type="text"], input[type="date"] {
+    font-family: inherit;
+    font-size: 0.92rem;
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink);
+    width: 100%;
+    min-width: 0;
+  }
+  input[type="text"]:focus-visible, input[type="date"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  label.field-label { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
+  .field-row { margin-bottom: 14px; }
+
+  .kakao-box {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .kakao-box .kakao-text { flex: 1; min-width: 160px; font-size: 0.82rem; color: var(--ink); overflow-wrap: anywhere; }
+  .kakao-box .kakao-label { font-size: 0.7rem; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
+
+  .submit-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--ok-soft);
+    color: var(--ok);
+    margin-bottom: 10px;
+  }
+  .disclaimer { font-size: 0.74rem; color: var(--ink-soft); margin-top: 8px; }
+
+  .week-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .week-summary-row:last-child { border-bottom: none; }
+  .week-summary-row .wd-label { font-weight: 700; color: var(--ink); flex: none; }
+  .week-summary-row .wd-status { color: var(--ink-soft); overflow-wrap: anywhere; text-align: right; min-width: 0; flex: 1 1 auto; }
+  .week-summary-row .wd-status.done { color: var(--ok); font-weight: 600; }
+
+  .onboard-card { max-width: 420px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="테마 전환">라이트 / 다크</button>
+
+<div class="page">
+  <p class="eyebrow"><span class="member-badge">조원용</span>필사 × 읽기 소그룹 게임</p>
+  <h1>요한복음 21주 말씀런</h1>
+  <p class="sub">이 화면은 내 휴대폰에만 저장됩니다(외부 서버 전송 없음). 리더와의 소통은 카카오톡으로 이루어져요 — 이 앱은 그 과정을 도와주는 개인용 도구예요.</p>
+
+  <div id="onboardArea"></div>
+
+  <div id="mainArea" style="display:none;">
+    <div class="status-bar">
+      <div class="status-top">
+        <span class="status-title"><span id="weekLabel">1</span>주차 · 요한복음 <span class="gold" id="chapterLabel">1</span>장</span>
+        <span class="status-day" id="dayLabel">월요일</span>
+      </div>
+      <div class="sync-code-row">
+        <input id="syncCodeInput" type="text" placeholder="리더에게 받은 동기화 코드 붙여넣기" autocomplete="off">
+        <button class="action-btn primary" id="applySyncCodeBtn" type="button">코드 적용</button>
+      </div>
+      <p class="status-note" id="syncStatusNote"></p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn" id="tabBtnToday" role="tab" aria-selected="true" type="button">오늘</button>
+      <button class="tab-btn" id="tabBtnSettings" role="tab" aria-selected="false" type="button">설정</button>
+    </div>
+
+    <div class="tab-panel active" id="panelToday"></div>
+
+    <div class="tab-panel" id="panelSettings">
+      <div class="card">
+        <h2>내 정보</h2>
+        <div class="field-row">
+          <label class="field-label" for="nameInput2">이름</label>
+          <input id="nameInput2" type="text">
+        </div>
+        <button class="action-btn primary" id="saveSettingsBtn" type="button">저장</button>
+      </div>
+      <div class="card">
+        <h2>데이터 초기화</h2>
+        <p class="status-note">이름·시작일·이번 주 인증/제출 기록을 전부 지우고 처음부터 다시 시작합니다. 되돌릴 수 없어요.</p>
+        <button class="action-btn danger" id="resetAllBtn" type="button">전체 데이터 초기화</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "johngospel-wordrun-member-v1";
+  var TOTAL_WEEKS = 21;
+  var DAY_NAMES = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
+  var QUIZ_DAY_LABEL = ["화", "수", "목", "금", "토"];
+
+  var QUIZ_DATA = {
+    1: [
+      { ref: "1:4-5", blank: "그분 안에 ___이 있었다. 그 ___은 사람들의 빛이었다. 그 빛이 ___ 속에서 빛나고 있다." },
+      { ref: "1:12", blank: "그러나 그분을 맞아들인 사람이라면 누구에게나 하나님의 ___가 되는 자격을 주셨다." },
+      { ref: "1:14", blank: "그 말씀이 사람 몸이 되어, 우리 가운데 ___를 두셨다." },
+      { ref: "1:17", blank: "율법을 주신 것은 ___를 통해서이지만, 은혜와 진리를 누리게 하신 것은 ___를 통해서이다." },
+      { ref: "1:29", blank: "보세요, 하나님의 ___, 곧 세상 ___를 치워 버리시는 분이십니다." }
+    ],
+    2: [
+      { ref: "2:5", blank: "예수님의 어머니가 시중꾼들에게 말한다. '그가 여러분에게 뭐라고 말하든지 그대로 ___.'" },
+      { ref: "2:11", blank: "징표들 가운데 이 처음 것을 예수님이 갈릴래아의 가나에서 행하여 자신의 ___을 드러내셨다." },
+      { ref: "2:16", blank: "내 아버지의 집을 ___하는 집으로 만들지 마시오!" },
+      { ref: "2:19", blank: "이 성전을 무너뜨려 보시오. 그러면 내가 3일 안에 그것을 다시 ___ 세우겠소." },
+      { ref: "2:25", blank: "사람 속에 뭐가 있는지를 예수님 자신이 ___ 계셨기 때문이다." }
+    ],
+    3: [
+      { ref: "3:3", blank: "누구든 ___으로부터 태어나지 않으면 하나님 나라를 볼 수 없습니다." },
+      { ref: "3:16", blank: "하나님이 세상을 이처럼 ___하사 하나뿐인 ___을 주셨습니다." },
+      { ref: "3:19", blank: "빛이 세상에 왔는데, 사람들이 빛보다 ___을 더 사랑했다는 것입니다." },
+      { ref: "3:30", blank: "그분 명성은 커져야만 하고, 나는 ___ 합니다." },
+      { ref: "3:36", blank: "아들을 믿는 사람에게는 ___이 있습니다." }
+    ],
+    4: [
+      { ref: "4:14", blank: "내가 줄 물을 마시는 사람은 누구라도 절대로 영원히 ___지 않을 겁니다." },
+      { ref: "4:24", blank: "하나님은 ___이십니다. 그래서 그분께 예배드리는 사람들은 반드시 성령님에 이끌려 진리를 따라 예배드려야 합니다." },
+      { ref: "4:29", blank: "내가 한 일을 모두 다 나에게 말한 사람을요. 어쩌면 이 사람이 ___가 아닐까요?" },
+      { ref: "4:34", blank: "나의 먹을거리는 나를 보내신 분의 ___을 실행하고 그분의 일을 끝마치는 겁니다." },
+      { ref: "4:50", blank: "예수님이 그에게 말씀하신다. '가세요. 그대 아들은 ___.'" }
+    ],
+    5: [
+      { ref: "5:8", blank: "일어나세요. 그대의 ___를 걷어치우고 걸으세요!" },
+      { ref: "5:17", blank: "내 아버지께서 지금까지 ___ 계셔서 나도 일합니다." },
+      { ref: "5:24", blank: "내 말을 듣고 나를 보내신 분을 믿는 사람에게는 ___이 있습니다." },
+      { ref: "5:39", blank: "당신들은 성경을 자세히 살펴봅니다... 그런데 바로 이 성경도 나에 대해 ___합니다." },
+      { ref: "5:46", blank: "당신들이 모세를 믿었다면, ___을 믿었을 테니까요." }
+    ],
+    6: [
+      { ref: "6:9", blank: "여기에 어린아이 하나가 있는데, 보리빵 ___개와 작은 물고기 ___마리를 가지고 있습니다." },
+      { ref: "6:20", blank: "나예요, 나! ___지 마세요." },
+      { ref: "6:35", blank: "나야말로 ___입니다. 나한테 오는 사람은 절대로 배고프지 않을 겁니다." },
+      { ref: "6:54", blank: "내 살을 먹고 내 피를 마시는 사람에게는 ___이 있습니다." },
+      { ref: "6:68", blank: "주님, 저희가 누구한테로 떠나가겠습니까? ___의 말씀이 주님께 있습니다." }
+    ],
+    7: [
+      { ref: "7:6", blank: "나의 ___가 아직 되지 않았다. 그러나 너희들의 때는 늘 준비되어 있다." },
+      { ref: "7:16", blank: "나의 가르침은 나의 것이 아니라 ___ 보내신 분의 것입니다." },
+      { ref: "7:24", blank: "보이는 것에 따라 판가름하지 말고, 올바른 ___을 내리세요." },
+      { ref: "7:37-38", blank: "누구든지 목마른 사람은 나한테 와서 마시기 바랍니다... 나를 믿는 사람은... ___가 그의 배에서 강물처럼 흘러나올 겁니다." },
+      { ref: "7:49", blank: "율법을 알지 못하는 이 어중이떠중이는 ___ 아래 있다!" }
+    ],
+    8: [
+      { ref: "8:7", blank: "당신들 가운데 죄 없는 사람이 맨 먼저 그에게 ___을 던지시오." },
+      { ref: "8:12", blank: "나야말로 세상의 ___입니다. 나를 따라오는 사람은 절대 어둠 속에 다니지 않고..." },
+      { ref: "8:32", blank: "그리고 진리를 알게 될 겁니다. 그 진리가 그대들을 ___롭게 해 줄 겁니다." },
+      { ref: "8:44", blank: "당신들은, 당신들의 아비 곧 ___에게 속해 있습니다." },
+      { ref: "8:58", blank: "아브라함이 나기 전부터 바로 내가 ___입니다." }
+    ],
+    9: [
+      { ref: "9:3", blank: "이 사람에게서 ___의 일들이 드러나도록 하기 위해서입니다." },
+      { ref: "9:7", blank: "실로암 연못으로 가서 ___ 내세요." },
+      { ref: "9:25", blank: "한 가지 아는 것은 제가 ___이었는데 지금은 볼 수 있다는 것입니다." },
+      { ref: "9:38", blank: "제가 ___습니다, 주님!" },
+      { ref: "9:39", blank: "심판하기 위해서 나는 이 세상에 왔습니다. 그리하여 못 보는 사람들은 ___ 하고..." }
+    ],
+    10: [
+      { ref: "10:9", blank: "나야말로 ___입니다. 나를 통해서 들어오는 사람은 구원받을 겁니다." },
+      { ref: "10:10", blank: "바로 내가 온 것은 양들이 ___을 누리도록, 그것도 넘치게 누리도록 하려는 것입니다." },
+      { ref: "10:11", blank: "나야말로 좋은 ___입니다. 좋은 ___는 양들을 위해 자기 목숨을 내놓습니다." },
+      { ref: "10:28", blank: "바로 내가 내 양들에게 ___을 줍니다." },
+      { ref: "10:30", blank: "나와 ___는 하나입니다." }
+    ],
+    11: [
+      { ref: "11:4", blank: "이 병은 죽을병이 아니라, 오히려 하나님의 ___을 나타낼 병입니다." },
+      { ref: "11:25", blank: "나야말로 ___이요 생명입니다. 나를 믿는 사람은 죽어도 살 겁니다." },
+      { ref: "11:35", blank: "예수님이 ___을 흘리셨다." },
+      { ref: "11:43", blank: "나사로, 이리로 ___! 밖으로!" },
+      { ref: "11:50", blank: "한 사람이 백성을 위해서 죽고 민족 전체가 망하지 않는 것이 여러분에게 ___이라고 생각하지 않습니까?" }
+    ],
+    12: [
+      { ref: "12:13", blank: "찬양받으시기를, ___의 이름으로 오시는 분이!" },
+      { ref: "12:24", blank: "밀의 씨앗이 땅에 떨어져 죽지 않으면, 씨앗 자체만 남습니다. 그러나 죽으면 많은 ___를 맺습니다." },
+      { ref: "12:25", blank: "이 세상에서 자기 목숨을 돌아보지 않는 사람은 ___에 이르도록 그 목숨을 지킬 것입니다." },
+      { ref: "12:32", blank: "내가 땅에서 ___ 들리면 모든 사람을 나한테로 이끌 겁니다." },
+      { ref: "12:46", blank: "나야말로 ___으로 세상에 와 있습니다." }
+    ],
+    13: [
+      { ref: "13:5", blank: "물을 ___에 부으신다. 그리고 제자들의 발을 씻어 주시고..." },
+      { ref: "13:14", blank: "'주'이고 '선생'인 내가 직접 그대들의 발을 씻어 주었으니, 그대들도 또한 서로서로 ___를 씻어 주어야 해요." },
+      { ref: "13:34", blank: "새 ___을 그대들에게 줍니다. 서로 사랑하세요!" },
+      { ref: "13:35", blank: "이것으로 그대들이 나의 ___라는 것을 모두가 알아차릴 겁니다." },
+      { ref: "13:38", blank: "닭이 울기 전에 그대가 틀림없이 나를 ___ 저버릴 겁니다." }
+    ],
+    14: [
+      { ref: "14:1", blank: "그대들의 ___이 뒤흔들려서는 안 됩니다. 하나님을 믿으세요! 또 나를 믿으세요!" },
+      { ref: "14:6", blank: "나야말로 그 ___이고 진리이고 생명입니다." },
+      { ref: "14:15", blank: "그대들이 나를 사랑한다면, 나의 ___을 지킬 겁니다." },
+      { ref: "14:16", blank: "아버지께서 다른 ___를 그대들에게 주실 겁니다." },
+      { ref: "14:27", blank: "___를 그대들에게 남겨 두고 갑니다. 나의 ___를 그대들에게 줍니다." }
+    ],
+    15: [
+      { ref: "15:5", blank: "나야말로 ___나무, 그대들은 가지입니다." },
+      { ref: "15:12", blank: "나의 ___은 이것입니다. 그대들이 서로 사랑해야 한다는 것입니다!" },
+      { ref: "15:13", blank: "사람에게 이보다, 곧 친구들을 위해 자기 목숨을 내놓는 것보다 더 큰 ___은 없습니다." },
+      { ref: "15:16", blank: "그대들이 나를 선택한 것이 아니라, 내가 그대들을 ___하여 세웠어요." },
+      { ref: "15:26", blank: "___가 오실 겁니다... 진리의 영이십니다." }
+    ],
+    16: [
+      { ref: "16:7", blank: "바로 내가 떠나는 것이 그대들에게 ___이 됩니다." },
+      { ref: "16:13", blank: "진리의 영이 오시면, 길잡이가 되어 그대들을 온갖 ___로 이끄실 겁니다." },
+      { ref: "16:20", blank: "그대들의 ___이 바뀌어 기쁨이 될 겁니다." },
+      { ref: "16:24", blank: "달라고 하세요. 그러면 받을 것입니다. 그대들에게 ___이 가득 차게 될 것입니다." },
+      { ref: "16:33", blank: "힘내세요! 바로 내가 세상을 ___습니다!" }
+    ],
+    17: [
+      { ref: "17:3", blank: "영원한 생명은 이것입니다. 곧... 예수 그리스도를 ___ 것입니다." },
+      { ref: "17:24", blank: "저들이 나의 ___을 지켜보게 해 주십시오." },
+      { ref: "17:15", blank: "그들을 세상에서 빼내시라는 것이 아니라, 그들을 ___에게서 지켜 주시라는 것입니다." },
+      { ref: "17:17", blank: "그들을 진리로 거룩하게 해 주십시오. 하나님의 말씀이 ___입니다." },
+      { ref: "17:21", blank: "그들이 모두 ___가 되게 해 주십시오." }
+    ],
+    18: [
+      { ref: "18:11", blank: "칼을 칼집에 꽂으세요. 아버지께서 나에게 주신 ___, 그것을 내가 어떻게 감히 마시지 않을 수 있겠어요?" },
+      { ref: "18:17", blank: "당신도 역시 이 사람의 제자들에 속한 건 아니겠지요?... '나는 ___니다.'" },
+      { ref: "18:27", blank: "다시 베드로가 아니라고 잡아뗐다. 그러자 곧 ___이 울었다." },
+      { ref: "18:36", blank: "나의 나라는 이 ___에 속하지 않소." },
+      { ref: "18:37", blank: "나는 이것을 위해 태어났고, 이것을 위해 세상에 와 있소. 곧 ___를 증언하기 위해서 말이오." }
+    ],
+    19: [
+      { ref: "19:5", blank: "빌라도가 사람들에게 말한다. '보시오, 그 ___이오!'" },
+      { ref: "19:19", blank: "빌라도가 죄명도 패에 적어 십자가에 붙여 두었다. '나사렛 예수, 유대아 사람들의 ___'이라고 적혀 있었다." },
+      { ref: "19:26-27", blank: "어머니, 보십시오, 어머니의 ___입니다... 보세요, 그대의 ___입니다." },
+      { ref: "19:30", blank: "___까지 다 이루어졌습니다!" },
+      { ref: "19:34", blank: "병사들 가운데 한 명이 창으로 예수님의 옆구리를 찔렀다. 그러자 곧바로 ___과 ___이 흘러나왔다." }
+    ],
+    20: [
+      { ref: "20:16", blank: "예수님이 '마리아야!' 하고 말씀하신다. 마리아가 몸을 돌려서... '___!' 하고 말씀드린다." },
+      { ref: "20:19", blank: "예수님이... 그들에게 말씀하신다. '___가 너희들에게 있기를!'" },
+      { ref: "20:22", blank: "'___님을 맞아들여라!'" },
+      { ref: "20:28", blank: "토마스가 주님께 대답했다. '나의 주님, 나의 ___!'" },
+      { ref: "20:29", blank: "복 있다, ___고 믿은 사람들이!" }
+    ],
+    21: [
+      { ref: "21:6", blank: "배의 오른쪽으로 ___을 던져 보게. 그러면 찾게 될 걸세." },
+      { ref: "21:11", blank: "그물은 큰 물고기로 가득했는데 ___마리나 되었다." },
+      { ref: "21:15", blank: "내 ___들을 돌보아라!" },
+      { ref: "21:17", blank: "요한의 아들 시몬아, 네가 나를 ___느냐?" },
+      { ref: "21:19", blank: "이 말씀을 하시고는 베드로에게 말씀하신다. '나를 ___!'" }
+    ]
+  };
+
+  function copyTextToClipboard(text, onDone) {
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        onDone(true);
+      } catch (e) {
+        onDone(false);
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { onDone(true); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function defaultState() {
+    return {
+      name: null,
+      week: 1,
+      dayIndex: 0,
+      weekData: {},
+      themeSaved: null
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      return parsed;
+    } catch (e) { return null; }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var loaded = load();
+  var state = loaded || defaultState();
+  if (!state.weekData) state.weekData = {};
+  if (typeof state.week !== "number" || state.week < 1) state.week = 1;
+  if (state.week > TOTAL_WEEKS) state.week = TOTAL_WEEKS;
+  if (typeof state.dayIndex !== "number" || state.dayIndex < 0 || state.dayIndex > 6) state.dayIndex = 0;
+
+  function getWeekData(w) {
+    var key = String(w);
+    if (!state.weekData[key]) {
+      state.weekData[key] = { verified: false, submissions: {} };
+    }
+    var wd = state.weekData[key];
+    if (typeof wd.verified !== "boolean") wd.verified = false;
+    if (!wd.submissions) wd.submissions = {};
+    return wd;
+  }
+
+  // ---------- 동기화 코드 (리더 발급 — 이 앱의 주차/요일/인증상태는 오직 이 코드로만
+  // 갱신된다. 로컬 달력 계산은 완전히 제거됨: 조원의 폰 날짜나 수동조작이 리더의 실제
+  // 진행상태와 어긋나는 문제를 근본적으로 없애기 위함. 코드에는 주차·요일·인증여부만
+  // 담기고 정답은 절대 담기지 않는다 — QUIZ_DATA 자체에도 answer 필드가 없음(위 참고). ----------
+  var SYNC_CODE_PREFIX = "WR21-";
+  function parseSyncCode(codeStr) {
+    var s = (codeStr || "").trim();
+    if (s.indexOf(SYNC_CODE_PREFIX) !== 0) return null;
+    var b64 = s.slice(SYNC_CODE_PREFIX.length).trim();
+    if (!b64) return null;
+    var json;
+    try { json = JSON.parse(atob(b64)); } catch (e) { return null; }
+    if (!json || typeof json !== "object") return null;
+    if (typeof json.w !== "number" || json.w < 1 || json.w > TOTAL_WEEKS) return null;
+    if (typeof json.d !== "number" || json.d < 0 || json.d > 6) return null;
+    var result = { week: json.w, dayIndex: json.d };
+    if (typeof json.fv === "boolean") result.forceVerified = json.fv;
+    return result;
+  }
+
+  // ---------- 렌더 ----------
+  var onboardArea = document.getElementById("onboardArea");
+  var mainArea = document.getElementById("mainArea");
+  var panelToday = document.getElementById("panelToday");
+  var weekLabel = document.getElementById("weekLabel");
+  var chapterLabel = document.getElementById("chapterLabel");
+  var dayLabel = document.getElementById("dayLabel");
+  var syncStatusNote = document.getElementById("syncStatusNote");
+
+  var resetArmed = false;
+  var showSubmitForm = {}; // quizIdx -> true면 이미 제출했어도 재입력 폼을 보여줌
+
+  function renderOnboarding() {
+    if (state.name) {
+      onboardArea.style.display = "none";
+      mainArea.style.display = "";
+      return;
+    }
+    onboardArea.style.display = "";
+    mainArea.style.display = "none";
+    onboardArea.innerHTML = "";
+    var card = document.createElement("div");
+    card.className = "card onboard-card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "처음 시작하기";
+    card.appendChild(h2);
+    var p = document.createElement("p");
+    p.className = "status-note";
+    p.style.marginTop = "0";
+    p.textContent = "이름을 입력해 주세요. 이 기기에만 저장돼요. 시작 후에는 리더가 카톡으로 보내주는 동기화 코드를 붙여넣으면 주차·요일이 자동으로 맞춰져요.";
+    card.appendChild(p);
+
+    var nameRow = document.createElement("div");
+    nameRow.className = "field-row";
+    var nameLabel = document.createElement("label");
+    nameLabel.className = "field-label";
+    nameLabel.setAttribute("for", "nameInput");
+    nameLabel.textContent = "이름";
+    nameRow.appendChild(nameLabel);
+    var nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.id = "nameInput";
+    nameInput.placeholder = "예: 김민수";
+    nameRow.appendChild(nameInput);
+    card.appendChild(nameRow);
+
+    var startBtn = document.createElement("button");
+    startBtn.className = "action-btn primary";
+    startBtn.type = "button";
+    startBtn.textContent = "시작하기";
+    startBtn.addEventListener("click", function () {
+      var n = nameInput.value.trim();
+      if (!n) return;
+      state.name = n;
+      save();
+      renderAll();
+    });
+    card.appendChild(startBtn);
+    onboardArea.appendChild(card);
+  }
+
+  function renderStatusBar() {
+    weekLabel.textContent = state.week;
+    chapterLabel.textContent = state.week;
+    dayLabel.textContent = DAY_NAMES[state.dayIndex];
+    syncStatusNote.textContent = "이 화면의 주차·요일은 리더가 보내주는 동기화 코드로만 바뀌어요 — 코드를 받으면 위 칸에 붙여넣고 '코드 적용'을 눌러주세요.";
+  }
+
+  function renderToday() {
+    panelToday.innerHTML = "";
+    if (state.dayIndex === 0) {
+      renderMonday();
+    } else if (state.dayIndex >= 1 && state.dayIndex <= 5) {
+      renderQuizDay();
+    } else {
+      renderSunday();
+    }
+  }
+
+  function renderMonday() {
+    var wd = getWeekData(state.week);
+    var card = document.createElement("div");
+    card.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "월요일 · 읽기와 필사";
+    card.appendChild(h2);
+
+    var intro = document.createElement("p");
+    intro.className = "status-note";
+    intro.style.marginTop = "0";
+    intro.textContent = "오늘은 요한복음 " + state.week + "장을 읽고 필사하는 날이에요. 필사한 내용을 사진으로 찍어 인증샷을 카톡으로 리더에게 보내주세요.";
+    card.appendChild(intro);
+
+    var badge = document.createElement("p");
+    badge.className = "submit-badge";
+    badge.style.display = wd.verified ? "inline-block" : "none";
+    badge.textContent = "이번 주 인증 완료 ✓";
+    card.appendChild(badge);
+
+    var helper = document.createElement("p");
+    helper.className = "disclaimer";
+    helper.textContent = wd.verified
+      ? "리더가 보내준 동기화 코드로 인증이 확인됐어요. 위쪽 코드 입력칸에 그날 코드를 붙여넣으면 화~토 퀴즈로 이동해요."
+      : "필사 인증샷을 카톡으로 보내면, 리더가 확인 후 동기화 코드를 보내줘요. 그 코드를 위쪽 코드 입력칸에 붙여넣으면 화~토 퀴즈로 자동 이동해요 — 리더의 확인을 기다리는 중이에요. 이 화면에서 직접 누를 건 없어요.";
+    card.appendChild(helper);
+
+    panelToday.appendChild(card);
+  }
+
+  function renderQuizDay() {
+    var quizIdx = state.dayIndex - 1;
+    var wd = getWeekData(state.week);
+    var weekQuizzes = QUIZ_DATA[state.week];
+    var item = weekQuizzes && weekQuizzes[quizIdx];
+
+    var card = document.createElement("div");
+    card.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = QUIZ_DAY_LABEL[quizIdx] + "요일 퀴즈 · 요한복음 " + state.week + "장";
+    card.appendChild(h2);
+
+    if (!wd.verified) {
+      var lockNote = document.createElement("p");
+      lockNote.className = "empty-note";
+      lockNote.textContent = "월요일 인증이 아직 안 됐어요. 필사 인증샷을 카톡으로 보내고 리더가 확인하면, 리더가 보내주는 동기화 코드를 위쪽 코드 입력칸에 붙여넣으세요 — 그러면 이 화면이 자동으로 열려요.";
+      card.appendChild(lockNote);
+      panelToday.appendChild(card);
+      return;
+    }
+
+    if (!item) {
+      var note = document.createElement("p");
+      note.className = "empty-note";
+      note.textContent = state.week + "주차 퀴즈 데이터가 아직 준비되지 않았어요.";
+      card.appendChild(note);
+      panelToday.appendChild(card);
+      return;
+    }
+
+    var ref = document.createElement("p");
+    ref.className = "quiz-ref";
+    ref.textContent = state.week + "장 " + item.ref;
+    card.appendChild(ref);
+
+    var blank = document.createElement("p");
+    blank.className = "quiz-blank";
+    blank.textContent = item.blank;
+    card.appendChild(blank);
+
+    var submission = wd.submissions[quizIdx];
+    var editing = !submission || showSubmitForm[quizIdx];
+
+    if (submission && !editing) {
+      var doneBadge = document.createElement("p");
+      doneBadge.className = "submit-badge";
+      doneBadge.textContent = "제출완료 ✓";
+      card.appendChild(doneBadge);
+
+      var answerShown = document.createElement("p");
+      answerShown.className = "status-note";
+      answerShown.style.marginTop = "0";
+      answerShown.textContent = "내가 제출한 답: " + submission.answer;
+      card.appendChild(answerShown);
+
+      appendKakaoBox(card, submission.message);
+
+      var editBtn = document.createElement("button");
+      editBtn.className = "nav-btn";
+      editBtn.type = "button";
+      editBtn.textContent = "다시 제출하기";
+      editBtn.addEventListener("click", function () {
+        showSubmitForm[quizIdx] = true;
+        renderToday();
+      });
+      card.appendChild(editBtn);
+    } else {
+      var inputRow = document.createElement("div");
+      inputRow.className = "field-row";
+      var inputLabel = document.createElement("label");
+      inputLabel.className = "field-label";
+      inputLabel.textContent = "정답 입력";
+      inputRow.appendChild(inputLabel);
+      var answerInput = document.createElement("input");
+      answerInput.type = "text";
+      answerInput.placeholder = "빈칸에 들어갈 말을 적어주세요";
+      answerInput.value = submission ? submission.answer : "";
+      inputRow.appendChild(answerInput);
+      card.appendChild(inputRow);
+
+      var submitBtn = document.createElement("button");
+      submitBtn.className = "action-btn primary";
+      submitBtn.type = "button";
+      submitBtn.textContent = "제출";
+      submitBtn.addEventListener("click", function () {
+        var v = answerInput.value.trim();
+        if (!v) return;
+        var msg = state.name + " / " + state.week + "주차 " + DAY_NAMES[state.dayIndex] + " 정답 제출: " + v;
+        wd.submissions[quizIdx] = { answer: v, message: msg, submittedAt: Date.now ? new Date().toISOString() : "" };
+        showSubmitForm[quizIdx] = false;
+        save();
+        renderToday();
+      });
+      card.appendChild(submitBtn);
+
+      var disc = document.createElement("p");
+      disc.className = "disclaimer";
+      disc.textContent = "제출하면 리더에게 보낼 문자가 만들어져요. 카톡으로 보내면 리더가 그걸 보고 채점하고 쿠폰을 적립해요 — 이 화면의 '제출완료' 표시는 내 개인 진행 기록일 뿐, 공식 채점이 아니에요.";
+      card.appendChild(disc);
+    }
+
+    panelToday.appendChild(card);
+  }
+
+  function appendKakaoBox(container, message) {
+    var box = document.createElement("div");
+    box.className = "kakao-box";
+    var textWrap = document.createElement("div");
+    textWrap.className = "kakao-text";
+    var label = document.createElement("span");
+    label.className = "kakao-label";
+    label.textContent = "리더에게 보낼 문자";
+    textWrap.appendChild(label);
+    textWrap.appendChild(document.createTextNode(message));
+    box.appendChild(textWrap);
+
+    if (navigator.share) {
+      var shareBtn = document.createElement("button");
+      shareBtn.className = "nav-btn";
+      shareBtn.type = "button";
+      shareBtn.textContent = "카톡으로 보내기";
+      shareBtn.addEventListener("click", function () {
+        navigator.share({ text: message }).catch(function () {});
+      });
+      box.appendChild(shareBtn);
+    } else {
+      var copyBtn = document.createElement("button");
+      copyBtn.className = "nav-btn";
+      copyBtn.type = "button";
+      copyBtn.textContent = "복사하기";
+      copyBtn.addEventListener("click", function () {
+        copyTextToClipboard(message, function (ok) {
+          copyBtn.textContent = ok ? "복사됨 ✓" : "복사 실패";
+          setTimeout(function () { copyBtn.textContent = "복사하기"; }, 1500);
+        });
+      });
+      box.appendChild(copyBtn);
+    }
+    container.appendChild(box);
+  }
+
+  function renderSunday() {
+    var wd = getWeekData(state.week);
+    var card = document.createElement("div");
+    card.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "이번 주 제출 현황";
+    card.appendChild(h2);
+
+    var intro = document.createElement("p");
+    intro.className = "status-note";
+    intro.style.marginTop = "0";
+    intro.textContent = "화~토에 제출한 내용을 모아봤어요(정답 확인은 아니에요 — 리더가 카톡으로 받은 메시지를 보고 채점해요). 소그룹 모임이 끝나면 리더가 보내주는 동기화 코드를 받아 위 칸에 붙여넣으면 다음 주로 넘어가요.";
+    card.appendChild(intro);
+
+    var weekQuizzes = QUIZ_DATA[state.week] || [];
+    for (var i = 0; i < 5; i++) {
+      var row = document.createElement("div");
+      row.className = "week-summary-row";
+      var label = document.createElement("span");
+      label.className = "wd-label";
+      label.textContent = QUIZ_DAY_LABEL[i] + "요일";
+      row.appendChild(label);
+      var statusEl = document.createElement("span");
+      var sub = wd.submissions[i];
+      if (sub) {
+        statusEl.className = "wd-status done";
+        statusEl.textContent = "제출완료: " + sub.answer;
+      } else {
+        statusEl.className = "wd-status";
+        statusEl.textContent = wd.verified ? "미제출" : "(월요일 인증 전)";
+      }
+      row.appendChild(statusEl);
+      card.appendChild(row);
+    }
+    panelToday.appendChild(card);
+  }
+
+  function renderAll() {
+    renderOnboarding();
+    if (state.name) {
+      renderStatusBar();
+      renderToday();
+    }
+  }
+
+  // ---------- 이벤트 ----------
+  // 동기화 코드 적용 — 이 앱에서 주차·요일·인증상태를 바꾸는 유일한 경로. 리더 발급 코드가
+  // 상태의 단일 출처이므로, 이전에 있던 하루전/하루뒤/오늘재동기화/다음주로 같은 자기주도
+  // 이동 버튼은 전부 제거되었다(로컬 달력 계산 자체가 없으므로 "이미 화~토인데 월요일
+  // 화면에 영영 못 돌아가는" 옛 버그의 원인 자체가 사라짐 — 버튼 제거가 그 버그의 재발이
+  // 아니라 근본 원인 제거임).
+  var syncCodeInput = document.getElementById("syncCodeInput");
+  var applySyncCodeBtn = document.getElementById("applySyncCodeBtn");
+  applySyncCodeBtn.addEventListener("click", function () {
+    var parsed = parseSyncCode(syncCodeInput.value);
+    if (!parsed) {
+      syncStatusNote.textContent = "코드가 올바르지 않아요. 리더에게 받은 코드를 다시 확인해 붙여넣어 주세요.";
+      return;
+    }
+    var weekChanged = parsed.week !== state.week;
+    state.week = parsed.week;
+    state.dayIndex = parsed.dayIndex;
+    if (typeof parsed.forceVerified === "boolean") {
+      var wd = getWeekData(state.week);
+      wd.verified = parsed.forceVerified;
+    }
+    if (weekChanged) showSubmitForm = {};
+    syncCodeInput.value = "";
+    save();
+    renderAll();
+    syncStatusNote.textContent = state.week + "주차 " + DAY_NAMES[state.dayIndex] + "로 업데이트됐어요.";
+  });
+
+  // 탭 전환
+  var tabs = [
+    { btn: document.getElementById("tabBtnToday"), panel: document.getElementById("panelToday") },
+    { btn: document.getElementById("tabBtnSettings"), panel: document.getElementById("panelSettings") }
+  ];
+  tabs.forEach(function (t) {
+    t.btn.addEventListener("click", function () {
+      tabs.forEach(function (o) {
+        o.btn.setAttribute("aria-selected", o === t ? "true" : "false");
+        o.panel.classList.toggle("active", o === t);
+      });
+      if (t.btn.id === "tabBtnSettings") {
+        document.getElementById("nameInput2").value = state.name || "";
+      }
+    });
+  });
+
+  document.getElementById("saveSettingsBtn").addEventListener("click", function () {
+    var n = document.getElementById("nameInput2").value.trim();
+    if (n) state.name = n;
+    save(); renderAll();
+  });
+
+  var resetBtn = document.getElementById("resetAllBtn");
+  var resetArmTimer = null;
+  resetBtn.addEventListener("click", function () {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetBtn.classList.add("armed");
+      resetBtn.textContent = "정말 초기화? 다시 탭";
+      resetArmTimer = setTimeout(function () {
+        resetArmed = false;
+        resetBtn.classList.remove("armed");
+        resetBtn.textContent = "전체 데이터 초기화";
+      }, 4000);
+      return;
+    }
+    clearTimeout(resetArmTimer);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    state = defaultState();
+    showSubmitForm = {};
+    resetArmed = false;
+    resetBtn.classList.remove("armed");
+    resetBtn.textContent = "전체 데이터 초기화";
+    save(); renderAll();
+  });
+
+  // 테마
+  var themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", function () {
+    var root = document.documentElement;
+    var current = root.getAttribute("data-theme");
+    var next = current === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    state.themeSaved = next;
+    save();
+  });
+  if (state.themeSaved) document.documentElement.setAttribute("data-theme", state.themeSaved);
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

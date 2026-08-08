@@ -1,0 +1,1539 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요한복음 21주 말씀런</title>
+<style>
+  :root {
+    --bg: #f5efe1;
+    --bg-soft: #ebe2cd;
+    --ink: #1c2431;
+    --ink-soft: #55524a;
+    --navy: #1f3b57;
+    --navy-soft: #2c4d6e;
+    --gold: #b9862f;
+    --gold-soft: #e8cf9a;
+    --card: #fffdf7;
+    --border: #ddd0ad;
+    --ring: #b9862f;
+    --danger: #a3402e;
+    --danger-soft: #f3ddd5;
+    --ok: #3f6b3f;
+    --ok-soft: #dcead9;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1420;
+    --bg-soft: #131d2d;
+    --ink: #ece4d2;
+    --ink-soft: #b7ac93;
+    --navy: #9fc2e8;
+    --navy-soft: #6f97c2;
+    --gold: #e8c26b;
+    --gold-soft: #4a3d20;
+    --card: #131b29;
+    --border: #2b3a4f;
+    --ring: #e8c26b;
+    --danger: #e08a72;
+    --danger-soft: #3a2119;
+    --ok: #8fcf8a;
+    --ok-soft: #17301a;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1420;
+      --bg-soft: #131d2d;
+      --ink: #ece4d2;
+      --ink-soft: #b7ac93;
+      --navy: #9fc2e8;
+      --navy-soft: #6f97c2;
+      --gold: #e8c26b;
+      --gold-soft: #4a3d20;
+      --card: #131b29;
+      --border: #2b3a4f;
+      --ring: #e8c26b;
+      --danger: #e08a72;
+      --danger-soft: #3a2119;
+      --ok: #8fcf8a;
+      --ok-soft: #17301a;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); overflow-x: hidden; }
+  body {
+    font-family: "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    line-height: 1.5;
+    padding: clamp(12px, 4vw, 32px) clamp(12px, 4vw, 32px) 64px;
+  }
+  .page { width: 100%; max-width: 720px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  h1 {
+    font-family: "Noto Serif KR", "Nanum Myeongjo", "Batang", serif;
+    font-weight: 700;
+    font-size: clamp(1.35rem, 5vw, 1.9rem);
+    margin: 0 0 4px;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .sub { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 18px; }
+
+  .theme-toggle {
+    position: fixed;
+    top: 12px; right: 12px;
+    font-family: inherit;
+    font-size: 0.74rem;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    z-index: 5;
+  }
+  .theme-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+  .status-bar {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .status-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .status-title { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+  .status-title .gold { color: var(--gold); }
+  .status-day {
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: var(--card);
+  }
+  :root[data-theme="dark"] .status-day { background: var(--gold-soft); color: var(--gold); }
+  @media (prefers-color-scheme: dark) { .status-day { background: var(--gold-soft); color: var(--gold); } }
+
+  .status-nav { display: flex; align-items: center; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .nav-btn, .action-btn {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .action-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .nav-btn:focus-visible, .action-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .action-btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  :root[data-theme="dark"] .action-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; }
+  @media (prefers-color-scheme: dark) { .action-btn.primary { background: var(--gold); border-color: var(--gold); color: #1a1305; } }
+  .action-btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+  .action-btn.armed { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .status-note { color: var(--ink-soft); font-size: 0.78rem; margin-top: 8px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 9px 14px;
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--gold); }
+  .tab-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+    font-weight: 700;
+  }
+  .card h3 {
+    font-family: "Noto Serif KR", "Nanum Myeongjo", "Batang", serif;
+    font-size: 1.05rem;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .empty-note {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    background: var(--bg-soft);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .member-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .member-row:last-child { border-bottom: none; }
+  .member-name { flex: 1; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+  .member-coupon { font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; }
+  .member-coupon b { color: var(--gold); }
+
+  .badge-complete {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    white-space: nowrap;
+  }
+
+  .toggle-btn {
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .toggle-btn[data-on="true"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .toggle-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+  .grade-group { display: flex; gap: 6px; }
+  .grade-btn {
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 7px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .grade-btn.correct[data-active="true"] { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .grade-btn.incorrect[data-active="true"] { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+  .grade-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .grade-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .locked-note { font-size: 0.72rem; color: var(--ink-soft); }
+
+  .kakao-box {
+    width: 100%;
+    background: var(--bg-soft);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .kakao-box .kakao-text { flex: 1; min-width: 160px; font-size: 0.82rem; color: var(--ink); overflow-wrap: anywhere; white-space: pre-line; }
+  .kakao-box .kakao-label { font-size: 0.7rem; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
+
+  .quiz-ref { font-size: 0.78rem; color: var(--gold); font-weight: 700; margin: 0 0 6px; }
+  .quiz-blank { font-size: 1.02rem; margin: 0 0 10px; }
+  .quiz-answer {
+    display: none;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+  .quiz-answer.shown { display: block; }
+
+  .roster-add { display: flex; gap: 8px; margin-top: 12px; }
+  .roster-add input { flex: 1; }
+  input[type="text"], input[type="date"] {
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 9px 11px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink);
+    width: 100%;
+    min-width: 0;
+  }
+  input[type="text"]:focus-visible, input[type="date"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+  .icon-btn {
+    font-family: inherit;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink-soft);
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    flex: none;
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .icon-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+  .settings-row { margin-bottom: 14px; }
+  .settings-row label { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
+  .settings-row .row-inline { display: flex; gap: 8px; }
+  .settings-row .row-inline input { flex: 1; }
+
+  /* wheel (adapted from prior donation wheel artifact) */
+  .wheel-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+  .wheel-wrap { position: relative; width: min(260px, 62vw); aspect-ratio: 1; margin: 4px 0 16px; }
+  .pointer {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid transparent; border-right: 12px solid transparent;
+    border-top: 18px solid var(--gold);
+    filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.25));
+    z-index: 3;
+  }
+  .wheel-disc { width: 100%; height: 100%; border-radius: 50%; display: block; transform: rotate(0deg);
+    box-shadow: 0 0 0 5px var(--card), 0 0 0 7px var(--border), 0 14px 32px -12px rgb(0 0 0 / 0.45); }
+  .wheel-disc.spinning { transition: transform 4.2s cubic-bezier(0.12, 0.72, 0.1, 1); }
+  @media (prefers-reduced-motion: reduce) { .wheel-disc.spinning { transition-duration: 0.6s; } }
+  .hub { position: absolute; top: 50%; left: 50%; width: 20%; height: 20%; transform: translate(-50%, -50%);
+    background: var(--card); border: 3px solid var(--gold); border-radius: 50%; z-index: 2;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.3); }
+
+  .spin-btn {
+    font-family: inherit; font-weight: 700; font-size: 1rem; letter-spacing: 0.02em;
+    color: var(--card);
+    background: linear-gradient(180deg, var(--gold) 0%, #a0741f 100%);
+    border: none; border-radius: 999px; padding: 12px 34px; cursor: pointer;
+    box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.5);
+  }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .spin-btn:focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
+
+  .spinner-pick { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; justify-content: center; }
+  .pick-chip {
+    font-family: inherit; font-size: 0.8rem; font-weight: 700;
+    padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink-soft); cursor: pointer;
+  }
+  .pick-chip[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  :root[data-theme="dark"] .pick-chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1305; }
+  @media (prefers-color-scheme: dark) { .pick-chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1a1305; } }
+  .pick-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .result { margin-top: 4px; min-height: 1.4em; font-weight: 700; font-size: 1rem; color: var(--navy-soft); text-align: center; }
+  :root[data-theme="dark"] .result { color: var(--gold); }
+  @media (prefers-color-scheme: dark) { .result { color: var(--gold); } }
+  .result.flash { animation: flash 0.9s ease; }
+  @keyframes flash { 0% { text-shadow: 0 0 0 transparent; } 35% { text-shadow: 0 0 24px var(--gold); } 100% { text-shadow: 0 0 0 transparent; } }
+  @media (prefers-reduced-motion: reduce) { .result.flash { animation: none; } }
+
+  .prize-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .prize-item { display: flex; align-items: center; gap: 8px; }
+  .prize-item .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .prize-item input { flex: 1; font-size: 0.86rem; padding: 7px 9px; min-width: 0; }
+
+  .history { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column-reverse; gap: 6px; max-height: 200px; overflow-y: auto; }
+  .history li { display: flex; justify-content: space-between; gap: 10px; font-size: 0.83rem; padding: 7px 9px; border-radius: 8px; background: var(--bg); }
+  .history .who { font-weight: 600; color: var(--ink); }
+  .history .prize { color: var(--ink-soft); text-align: right; }
+  .history .time { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 0.72rem; margin-left: 6px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="테마 전환">라이트 / 다크</button>
+
+<div class="page">
+  <p class="eyebrow">필사 × 읽기 소그룹 게임 · 리더용</p>
+  <h1>요한복음 21주 말씀런</h1>
+  <p class="sub">이 화면은 리더 휴대폰 1대에만 저장됩니다(외부 서버 전송 없음). 조원 명단·인증·채점·쿠폰 기록이 모두 이 기기의 브라우저에만 남아요.</p>
+
+  <div class="status-bar">
+    <div class="status-top">
+      <span class="status-title"><span id="weekLabel">1</span>주차 · 요한복음 <span class="gold" id="chapterLabel">1</span>장</span>
+      <span class="status-day" id="dayLabel">월요일</span>
+    </div>
+    <div class="status-nav">
+      <button class="nav-btn" id="prevDayBtn" type="button">◀ 하루 전</button>
+      <button class="nav-btn" id="nextDayBtn" type="button">하루 뒤 ▶</button>
+      <button class="nav-btn" id="syncTodayBtn" type="button">오늘로 재동기화</button>
+      <button class="action-btn primary" id="nextWeekBtn" type="button">다음 주로 ▶▶</button>
+    </div>
+    <p class="status-note" id="startDateNote"></p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn" id="tabBtnToday" role="tab" aria-selected="true" type="button">오늘 진행</button>
+    <button class="tab-btn" id="tabBtnRoster" role="tab" aria-selected="false" type="button">조원 관리</button>
+    <button class="tab-btn" id="tabBtnSettings" role="tab" aria-selected="false" type="button">설정</button>
+  </div>
+
+  <div class="tab-panel active" id="panelToday"></div>
+
+  <div class="tab-panel" id="panelRoster">
+    <div class="card">
+      <h2>조원 명단</h2>
+      <div id="rosterList"></div>
+      <div class="roster-add">
+        <input id="rosterInput" type="text" placeholder="새 조원 이름" autocomplete="off">
+        <button class="action-btn primary" id="rosterAddBtn" type="button">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panelSettings">
+    <div class="card">
+      <h2>프로그램 시작일</h2>
+      <div class="settings-row">
+        <label for="startDateInput">1주차 월요일 날짜 (한 번 설정하면 이 날짜 기준으로 오늘의 주차·요일이 자동 계산됩니다)</label>
+        <div class="row-inline">
+          <input id="startDateInput" type="date">
+          <button class="action-btn primary" id="startDateBtn" type="button">설정</button>
+        </div>
+      </div>
+      <p class="status-note">수동으로 요일을 옮긴 뒤에도 이 버튼이나 상단 "오늘로 재동기화"를 누르면 실제 달력 기준으로 다시 맞춰집니다.</p>
+    </div>
+    <div class="card">
+      <h2>오늘의 동기화 코드</h2>
+      <p class="status-note">실제로 하루를 넘겨 다음 요일로 진행했을 때 이 버튼을 눌러 코드를 생성하세요. 조원 단체 카톡방에 한 번 올리면, 이미 인증된 조원들이 각자 이 코드를 앱에 붙여넣어 그날의 새 퀴즈로 넘어갈 수 있어요(아직 인증 안 된 조원은 코드를 넣어도 인증 화면에 그대로 머물러요).</p>
+      <button class="action-btn primary" id="groupSyncCodeBtn" type="button">오늘의 동기화 코드 생성</button>
+      <div class="kakao-box" id="groupSyncCodeBox" style="display:none;">
+        <div class="kakao-text" id="groupSyncCodeText"></div>
+        <button class="nav-btn" id="groupSyncCodeCopyBtn" type="button">복사</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>데이터 초기화</h2>
+      <p class="status-note">조원 명단·인증·채점·쿠폰·돌림판 기록을 전부 지우고 처음부터 다시 시작합니다. 되돌릴 수 없어요.</p>
+      <button class="action-btn danger" id="resetAllBtn" type="button">전체 데이터 초기화</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "johngospel-wordrun-app-v1";
+  var TOTAL_WEEKS = 21;
+  var DAY_NAMES = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
+  var QUIZ_DAY_LABEL = ["화", "수", "목", "금", "토"];
+  var WHEEL_COLORS = ["#1f3b57", "#b9862f", "#6e7f5c", "#8c4b3c", "#4c5b7a", "#a6673d", "#5c4a63", "#7a8a6f", "#9a5b3f", "#3f5a72"];
+  var DEFAULT_PRIZES = [
+    "간식 기프티콘",
+    "대표기도 지명권",
+    "칭찬 박수 세례",
+    "한 번 더 스핀",
+    "리더 찬스카드",
+    "소그룹 사진 자유 포즈",
+    "은혜 한 스푼 (꽝)",
+    "완주 배지 추가 점수"
+  ];
+
+  // 1~21장 전체 데이터 확정 반영(2026-08-06, master가 새한글성경 원문 직접 확인 후 위임).
+  var QUIZ_DATA = {
+    1: [
+      { ref: "1:4-5", blank: "그분 안에 ___이 있었다. 그 ___은 사람들의 빛이었다. 그 빛이 ___ 속에서 빛나고 있다.", answer: "생명, 생명, 어둠" },
+      { ref: "1:12", blank: "그러나 그분을 맞아들인 사람이라면 누구에게나 하나님의 ___가 되는 자격을 주셨다.", answer: "자녀" },
+      { ref: "1:14", blank: "그 말씀이 사람 몸이 되어, 우리 가운데 ___를 두셨다.", answer: "거처" },
+      { ref: "1:17", blank: "율법을 주신 것은 ___를 통해서이지만, 은혜와 진리를 누리게 하신 것은 ___를 통해서이다.", answer: "모세, 예수 그리스도" },
+      { ref: "1:29", blank: "보세요, 하나님의 ___, 곧 세상 ___를 치워 버리시는 분이십니다.", answer: "어린양, 죄" }
+    ],
+    2: [
+      { ref: "2:5", blank: "예수님의 어머니가 시중꾼들에게 말한다. '그가 여러분에게 뭐라고 말하든지 그대로 ___.'", answer: "하세요" },
+      { ref: "2:11", blank: "징표들 가운데 이 처음 것을 예수님이 갈릴래아의 가나에서 행하여 자신의 ___을 드러내셨다.", answer: "영광" },
+      { ref: "2:16", blank: "내 아버지의 집을 ___하는 집으로 만들지 마시오!", answer: "장사" },
+      { ref: "2:19", blank: "이 성전을 무너뜨려 보시오. 그러면 내가 3일 안에 그것을 다시 ___ 세우겠소.", answer: "일으켜" },
+      { ref: "2:25", blank: "사람 속에 뭐가 있는지를 예수님 자신이 ___ 계셨기 때문이다.", answer: "알고" }
+    ],
+    3: [
+      { ref: "3:3", blank: "누구든 ___으로부터 태어나지 않으면 하나님 나라를 볼 수 없습니다.", answer: "위" },
+      { ref: "3:16", blank: "하나님이 세상을 이처럼 ___하사 하나뿐인 ___을 주셨습니다.", answer: "사랑하셔서, 아들" },
+      { ref: "3:19", blank: "빛이 세상에 왔는데, 사람들이 빛보다 ___을 더 사랑했다는 것입니다.", answer: "어두움" },
+      { ref: "3:30", blank: "그분 명성은 커져야만 하고, 나는 ___ 합니다.", answer: "사그라들어야만" },
+      { ref: "3:36", blank: "아들을 믿는 사람에게는 ___이 있습니다.", answer: "영원한 생명" }
+    ],
+    4: [
+      { ref: "4:14", blank: "내가 줄 물을 마시는 사람은 누구라도 절대로 영원히 ___지 않을 겁니다.", answer: "목마르" },
+      { ref: "4:24", blank: "하나님은 ___이십니다. 그래서 그분께 예배드리는 사람들은 반드시 성령님에 이끌려 진리를 따라 예배드려야 합니다.", answer: "영" },
+      { ref: "4:29", blank: "내가 한 일을 모두 다 나에게 말한 사람을요. 어쩌면 이 사람이 ___가 아닐까요?", answer: "그리스도" },
+      { ref: "4:34", blank: "나의 먹을거리는 나를 보내신 분의 ___을 실행하고 그분의 일을 끝마치는 겁니다.", answer: "뜻" },
+      { ref: "4:50", blank: "예수님이 그에게 말씀하신다. '가세요. 그대 아들은 ___.'", answer: "삽니다" }
+    ],
+    5: [
+      { ref: "5:8", blank: "일어나세요. 그대의 ___를 걷어치우고 걸으세요!", answer: "깔자리" },
+      { ref: "5:17", blank: "내 아버지께서 지금까지 ___ 계셔서 나도 일합니다.", answer: "일하고" },
+      { ref: "5:24", blank: "내 말을 듣고 나를 보내신 분을 믿는 사람에게는 ___이 있습니다.", answer: "영원한 생명" },
+      { ref: "5:39", blank: "당신들은 성경을 자세히 살펴봅니다... 그런데 바로 이 성경도 나에 대해 ___합니다.", answer: "증언" },
+      { ref: "5:46", blank: "당신들이 모세를 믿었다면, ___을 믿었을 테니까요.", answer: "나" }
+    ],
+    6: [
+      { ref: "6:9", blank: "여기에 어린아이 하나가 있는데, 보리빵 ___개와 작은 물고기 ___마리를 가지고 있습니다.", answer: "다섯, 두" },
+      { ref: "6:20", blank: "나예요, 나! ___지 마세요.", answer: "두려워하" },
+      { ref: "6:35", blank: "나야말로 ___입니다. 나한테 오는 사람은 절대로 배고프지 않을 겁니다.", answer: "생명의 빵" },
+      { ref: "6:54", blank: "내 살을 먹고 내 피를 마시는 사람에게는 ___이 있습니다.", answer: "영원한 생명" },
+      { ref: "6:68", blank: "주님, 저희가 누구한테로 떠나가겠습니까? ___의 말씀이 주님께 있습니다.", answer: "영원한 생명" }
+    ],
+    7: [
+      { ref: "7:6", blank: "나의 ___가 아직 되지 않았다. 그러나 너희들의 때는 늘 준비되어 있다.", answer: "때" },
+      { ref: "7:16", blank: "나의 가르침은 나의 것이 아니라 ___ 보내신 분의 것입니다.", answer: "나를" },
+      { ref: "7:24", blank: "보이는 것에 따라 판가름하지 말고, 올바른 ___을 내리세요.", answer: "판가름" },
+      { ref: "7:37-38", blank: "누구든지 목마른 사람은 나한테 와서 마시기 바랍니다... 나를 믿는 사람은... ___가 그의 배에서 강물처럼 흘러나올 겁니다.", answer: "생수" },
+      { ref: "7:49", blank: "율법을 알지 못하는 이 어중이떠중이는 ___ 아래 있다!", answer: "저주" }
+    ],
+    8: [
+      { ref: "8:7", blank: "당신들 가운데 죄 없는 사람이 맨 먼저 그에게 ___을 던지시오.", answer: "돌" },
+      { ref: "8:12", blank: "나야말로 세상의 ___입니다. 나를 따라오는 사람은 절대 어둠 속에 다니지 않고...", answer: "빛" },
+      { ref: "8:32", blank: "그리고 진리를 알게 될 겁니다. 그 진리가 그대들을 ___롭게 해 줄 겁니다.", answer: "자유" },
+      { ref: "8:44", blank: "당신들은, 당신들의 아비 곧 ___에게 속해 있습니다.", answer: "마귀" },
+      { ref: "8:58", blank: "아브라함이 나기 전부터 바로 내가 ___입니다.", answer: "나" }
+    ],
+    9: [
+      { ref: "9:3", blank: "이 사람에게서 ___의 일들이 드러나도록 하기 위해서입니다.", answer: "하나님" },
+      { ref: "9:7", blank: "실로암 연못으로 가서 ___ 내세요.", answer: "씻어" },
+      { ref: "9:25", blank: "한 가지 아는 것은 제가 ___이었는데 지금은 볼 수 있다는 것입니다.", answer: "시각장애인" },
+      { ref: "9:38", blank: "제가 ___습니다, 주님!", answer: "믿" },
+      { ref: "9:39", blank: "심판하기 위해서 나는 이 세상에 왔습니다. 그리하여 못 보는 사람들은 ___ 하고...", answer: "보게" }
+    ],
+    10: [
+      { ref: "10:9", blank: "나야말로 ___입니다. 나를 통해서 들어오는 사람은 구원받을 겁니다.", answer: "문" },
+      { ref: "10:10", blank: "바로 내가 온 것은 양들이 ___을 누리도록, 그것도 넘치게 누리도록 하려는 것입니다.", answer: "생명" },
+      { ref: "10:11", blank: "나야말로 좋은 ___입니다. 좋은 ___는 양들을 위해 자기 목숨을 내놓습니다.", answer: "목자" },
+      { ref: "10:28", blank: "바로 내가 내 양들에게 ___을 줍니다.", answer: "영원한 생명" },
+      { ref: "10:30", blank: "나와 ___는 하나입니다.", answer: "아버지" }
+    ],
+    11: [
+      { ref: "11:4", blank: "이 병은 죽을병이 아니라, 오히려 하나님의 ___을 나타낼 병입니다.", answer: "영광" },
+      { ref: "11:25", blank: "나야말로 ___이요 생명입니다. 나를 믿는 사람은 죽어도 살 겁니다.", answer: "부활" },
+      { ref: "11:35", blank: "예수님이 ___을 흘리셨다.", answer: "눈물" },
+      { ref: "11:43", blank: "나사로, 이리로 ___! 밖으로!", answer: "나오세요" },
+      { ref: "11:50", blank: "한 사람이 백성을 위해서 죽고 민족 전체가 망하지 않는 것이 여러분에게 ___이라고 생각하지 않습니까?", answer: "이득" }
+    ],
+    12: [
+      { ref: "12:13", blank: "찬양받으시기를, ___의 이름으로 오시는 분이!", answer: "주님" },
+      { ref: "12:24", blank: "밀의 씨앗이 땅에 떨어져 죽지 않으면, 씨앗 자체만 남습니다. 그러나 죽으면 많은 ___를 맺습니다.", answer: "열매" },
+      { ref: "12:25", blank: "이 세상에서 자기 목숨을 돌아보지 않는 사람은 ___에 이르도록 그 목숨을 지킬 것입니다.", answer: "영원한 생명" },
+      { ref: "12:32", blank: "내가 땅에서 ___ 들리면 모든 사람을 나한테로 이끌 겁니다.", answer: "높이" },
+      { ref: "12:46", blank: "나야말로 ___으로 세상에 와 있습니다.", answer: "빛" }
+    ],
+    13: [
+      { ref: "13:5", blank: "물을 ___에 부으신다. 그리고 제자들의 발을 씻어 주시고...", answer: "대야" },
+      { ref: "13:14", blank: "'주'이고 '선생'인 내가 직접 그대들의 발을 씻어 주었으니, 그대들도 또한 서로서로 ___를 씻어 주어야 해요.", answer: "발" },
+      { ref: "13:34", blank: "새 ___을 그대들에게 줍니다. 서로 사랑하세요!", answer: "계명" },
+      { ref: "13:35", blank: "이것으로 그대들이 나의 ___라는 것을 모두가 알아차릴 겁니다.", answer: "제자" },
+      { ref: "13:38", blank: "닭이 울기 전에 그대가 틀림없이 나를 ___ 저버릴 겁니다.", answer: "세 번" }
+    ],
+    14: [
+      { ref: "14:1", blank: "그대들의 ___이 뒤흔들려서는 안 됩니다. 하나님을 믿으세요! 또 나를 믿으세요!", answer: "마음" },
+      { ref: "14:6", blank: "나야말로 그 ___이고 진리이고 생명입니다.", answer: "길" },
+      { ref: "14:15", blank: "그대들이 나를 사랑한다면, 나의 ___을 지킬 겁니다.", answer: "계명들" },
+      { ref: "14:16", blank: "아버지께서 다른 ___를 그대들에게 주실 겁니다.", answer: "보혜사" },
+      { ref: "14:27", blank: "___를 그대들에게 남겨 두고 갑니다. 나의 ___를 그대들에게 줍니다.", answer: "평화" }
+    ],
+    15: [
+      { ref: "15:5", blank: "나야말로 ___나무, 그대들은 가지입니다.", answer: "포도" },
+      { ref: "15:12", blank: "나의 ___은 이것입니다. 그대들이 서로 사랑해야 한다는 것입니다!", answer: "계명" },
+      { ref: "15:13", blank: "사람에게 이보다, 곧 친구들을 위해 자기 목숨을 내놓는 것보다 더 큰 ___은 없습니다.", answer: "사랑" },
+      { ref: "15:16", blank: "그대들이 나를 선택한 것이 아니라, 내가 그대들을 ___하여 세웠어요.", answer: "선택" },
+      { ref: "15:26", blank: "___가 오실 겁니다... 진리의 영이십니다.", answer: "보혜사" }
+    ],
+    16: [
+      { ref: "16:7", blank: "바로 내가 떠나는 것이 그대들에게 ___이 됩니다.", answer: "득" },
+      { ref: "16:13", blank: "진리의 영이 오시면, 길잡이가 되어 그대들을 온갖 ___로 이끄실 겁니다.", answer: "진리" },
+      { ref: "16:20", blank: "그대들의 ___이 바뀌어 기쁨이 될 겁니다.", answer: "괴로움" },
+      { ref: "16:24", blank: "달라고 하세요. 그러면 받을 것입니다. 그대들에게 ___이 가득 차게 될 것입니다.", answer: "기쁨" },
+      { ref: "16:33", blank: "힘내세요! 바로 내가 세상을 ___습니다!", answer: "이겼" }
+    ],
+    17: [
+      { ref: "17:3", blank: "영원한 생명은 이것입니다. 곧... 예수 그리스도를 ___ 것입니다.", answer: "아는" },
+      { ref: "17:24", blank: "저들이 나의 ___을 지켜보게 해 주십시오.", answer: "영광" },
+      { ref: "17:15", blank: "그들을 세상에서 빼내시라는 것이 아니라, 그들을 ___에게서 지켜 주시라는 것입니다.", answer: "악한 자" },
+      { ref: "17:17", blank: "그들을 진리로 거룩하게 해 주십시오. 하나님의 말씀이 ___입니다.", answer: "진리" },
+      { ref: "17:21", blank: "그들이 모두 ___가 되게 해 주십시오.", answer: "하나" }
+    ],
+    18: [
+      { ref: "18:11", blank: "칼을 칼집에 꽂으세요. 아버지께서 나에게 주신 ___, 그것을 내가 어떻게 감히 마시지 않을 수 있겠어요?", answer: "잔" },
+      { ref: "18:17", blank: "당신도 역시 이 사람의 제자들에 속한 건 아니겠지요?... '나는 ___니다.'", answer: "아닙" },
+      { ref: "18:27", blank: "다시 베드로가 아니라고 잡아뗐다. 그러자 곧 ___이 울었다.", answer: "닭" },
+      { ref: "18:36", blank: "나의 나라는 이 ___에 속하지 않소.", answer: "세상" },
+      { ref: "18:37", blank: "나는 이것을 위해 태어났고, 이것을 위해 세상에 와 있소. 곧 ___를 증언하기 위해서 말이오.", answer: "진리" }
+    ],
+    19: [
+      { ref: "19:5", blank: "빌라도가 사람들에게 말한다. '보시오, 그 ___이오!'", answer: "사람" },
+      { ref: "19:19", blank: "빌라도가 죄명도 패에 적어 십자가에 붙여 두었다. '나사렛 예수, 유대아 사람들의 ___'이라고 적혀 있었다.", answer: "임금" },
+      { ref: "19:26-27", blank: "어머니, 보십시오, 어머니의 ___입니다... 보세요, 그대의 ___입니다.", answer: "아들, 어머니" },
+      { ref: "19:30", blank: "___까지 다 이루어졌습니다!", answer: "끝" },
+      { ref: "19:34", blank: "병사들 가운데 한 명이 창으로 예수님의 옆구리를 찔렀다. 그러자 곧바로 ___과 ___이 흘러나왔다.", answer: "피, 물" }
+    ],
+    20: [
+      { ref: "20:16", blank: "예수님이 '마리아야!' 하고 말씀하신다. 마리아가 몸을 돌려서... '___!' 하고 말씀드린다.", answer: "랍부니" },
+      { ref: "20:19", blank: "예수님이... 그들에게 말씀하신다. '___가 너희들에게 있기를!'", answer: "평화" },
+      { ref: "20:22", blank: "'___님을 맞아들여라!'", answer: "성령" },
+      { ref: "20:28", blank: "토마스가 주님께 대답했다. '나의 주님, 나의 ___!'", answer: "하나님" },
+      { ref: "20:29", blank: "복 있다, ___고 믿은 사람들이!", answer: "보지 않" }
+    ],
+    21: [
+      { ref: "21:6", blank: "배의 오른쪽으로 ___을 던져 보게. 그러면 찾게 될 걸세.", answer: "그물" },
+      { ref: "21:11", blank: "그물은 큰 물고기로 가득했는데 ___마리나 되었다.", answer: "153" },
+      { ref: "21:15", blank: "내 ___들을 돌보아라!", answer: "어린양" },
+      { ref: "21:17", blank: "요한의 아들 시몬아, 네가 나를 ___느냐?", answer: "좋아하" },
+      { ref: "21:19", blank: "이 말씀을 하시고는 베드로에게 말씀하신다. '나를 ___!'", answer: "따라오너라" }
+    ]
+  };
+
+  function makeId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+    return "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  // ---------- 동기화 코드 (조원 앱으로 상태를 강제 전달) ----------
+  // payload는 주차(w)·요일인덱스(d)·강제인증여부(fv, 선택)만 담는다 — 정답(QUIZ_DATA의
+  // answer 필드)은 절대 포함하지 않는다. 조원 앱은 이 코드를 디코딩해 자기 로컬 달력 계산
+  // 없이 화면 상태를 그대로 맞춘다(조원 앱 쪽 변경사항 — 여기 리더 앱은 코드 "생성"만 담당).
+  var SYNC_CODE_PREFIX = "WR21-";
+  function buildSyncCode(payload) {
+    return SYNC_CODE_PREFIX + btoa(JSON.stringify(payload));
+  }
+
+  // 카톡 등에 붙여넣기용 텍스트를 클립보드에 복사(권한/구형 환경 대비 폴백 포함)
+  function copyTextToClipboard(text, onDone) {
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        onDone(true);
+      } catch (e) {
+        onDone(false);
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { onDone(true); }, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  var COMPLETION_WEEKS = 21;
+  var COMPLETION_BONUS_SPINS = 3;
+
+  function defaultState() {
+    return {
+      startDate: null,
+      week: 1,
+      dayIndex: 0,
+      members: [],
+      weekData: {},
+      bonusSpinsUsed: {},
+      wheel: { prizes: DEFAULT_PRIZES.slice(), history: [], rotation: 0 },
+      themeSaved: null
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      return parsed;
+    } catch (e) { return null; }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var loaded = load();
+  var state = loaded || defaultState();
+  if (!state.members) state.members = [];
+  if (!state.weekData) state.weekData = {};
+  if (!state.bonusSpinsUsed) state.bonusSpinsUsed = {};
+  if (!state.wheel) state.wheel = { prizes: DEFAULT_PRIZES.slice(), history: [], rotation: 0 };
+  if (!state.wheel.prizes || !state.wheel.prizes.length) state.wheel.prizes = DEFAULT_PRIZES.slice();
+  if (!state.wheel.history) state.wheel.history = [];
+  if (typeof state.wheel.rotation !== "number") state.wheel.rotation = 0;
+  if (typeof state.week !== "number" || state.week < 1) state.week = 1;
+  if (state.week > TOTAL_WEEKS) state.week = TOTAL_WEEKS;
+  if (typeof state.dayIndex !== "number" || state.dayIndex < 0 || state.dayIndex > 6) state.dayIndex = 0;
+
+  function getWeekData(w) {
+    var key = String(w);
+    if (!state.weekData[key]) {
+      state.weekData[key] = { verified: {}, quiz: {}, spinsUsed: {} };
+    }
+    var wd = state.weekData[key];
+    if (!wd.verified) wd.verified = {};
+    if (!wd.quiz) wd.quiz = {};
+    if (!wd.spinsUsed) wd.spinsUsed = {};
+    return wd;
+  }
+
+  function couponsFor(w, memberId) {
+    var wd = getWeekData(w);
+    var q = wd.quiz[memberId];
+    if (!q) return 0;
+    var n = 0;
+    for (var k in q) { if (q[k] === "correct") n++; }
+    return n;
+  }
+
+  function weeklySpinsRemaining(w, memberId) {
+    var wd = getWeekData(w);
+    var used = wd.spinsUsed[memberId] || 0;
+    var remain = couponsFor(w, memberId) - used;
+    return remain > 0 ? remain : 0;
+  }
+
+  // 서로 다른 주차 중 월요일 인증확인이 완료된 주차 수 — 새 상태를 따로 두지 않고
+  // 기존 weekData(주가 바뀌어도 지워지지 않음)를 스캔해 파생 계산한다. 인증을 취소하면
+  // 이 수도 정직하게 줄어든다(단일 진실源 — 이중지급/유령완주 방지).
+  function completedWeeksCount(memberId) {
+    var n = 0;
+    for (var w in state.weekData) {
+      if (state.weekData[w].verified && state.weekData[w].verified[memberId]) n++;
+    }
+    return n;
+  }
+
+  function hasCompletionBonus(memberId) {
+    return completedWeeksCount(memberId) >= COMPLETION_WEEKS;
+  }
+
+  // 지급 자체는 위 hasCompletionBonus의 파생값이라 별도 플래그가 없어도 중복 지급이
+  // 불가능하다 — "사용량"만 lifetime으로 추적한다(주간 쿠폰 사용량과는 완전히 별개).
+  function bonusSpinsRemaining(memberId) {
+    if (!hasCompletionBonus(memberId)) return 0;
+    var used = state.bonusSpinsUsed[memberId] || 0;
+    var remain = COMPLETION_BONUS_SPINS - used;
+    return remain > 0 ? remain : 0;
+  }
+
+  // 합산 스핀: 이번 주 쿠폰으로 얻은 잔여 스핀 + 완주 보너스 잔여 스핀(전주차 공통)
+  function spinsRemaining(w, memberId) {
+    return weeklySpinsRemaining(w, memberId) + bonusSpinsRemaining(memberId);
+  }
+
+  // ---------- 날짜/주차 계산 ----------
+  function todayLocalMidnight() {
+    var n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  function parseDateOnly(str) {
+    var parts = str.split("-");
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  }
+  function calcPointerFromStart(startDateStr) {
+    var start = parseDateOnly(startDateStr);
+    var today = todayLocalMidnight();
+    var diffDays = Math.round((today - start) / 86400000);
+    if (diffDays < 0) diffDays = 0;
+    var week = Math.floor(diffDays / 7) + 1;
+    var dayIndex = diffDays % 7;
+    if (week > TOTAL_WEEKS) { week = TOTAL_WEEKS; dayIndex = 6; }
+    return { week: week, dayIndex: dayIndex };
+  }
+
+  // ---------- 렌더 ----------
+  var panelToday = document.getElementById("panelToday");
+  var rosterList = document.getElementById("rosterList");
+  var weekLabel = document.getElementById("weekLabel");
+  var chapterLabel = document.getElementById("chapterLabel");
+  var dayLabel = document.getElementById("dayLabel");
+  var startDateNote = document.getElementById("startDateNote");
+  var startDateInput = document.getElementById("startDateInput");
+
+  var nextWeekArmed = false;
+  var resetArmed = false;
+  var quizAnswerShown = {};
+
+  function renderStatusBar() {
+    weekLabel.textContent = state.week;
+    chapterLabel.textContent = state.week;
+    dayLabel.textContent = DAY_NAMES[state.dayIndex];
+    if (state.startDate) {
+      startDateNote.textContent = "시작일: " + state.startDate + " (1주차 월요일 기준)";
+      startDateInput.value = state.startDate;
+    } else {
+      startDateNote.textContent = "시작일이 아직 설정되지 않았어요 — 설정 탭에서 1주차 월요일 날짜를 지정하면 오늘 기준 주차가 자동 계산됩니다. 지금은 수동 이동 버튼으로만 진행할 수 있어요.";
+    }
+  }
+
+  function renderRoster() {
+    rosterList.innerHTML = "";
+    if (!state.members.length) {
+      var p = document.createElement("p");
+      p.className = "empty-note";
+      p.textContent = "아직 등록된 조원이 없어요. 아래에서 추가해 주세요.";
+      rosterList.appendChild(p);
+      return;
+    }
+    state.members.forEach(function (m) {
+      var row = document.createElement("div");
+      row.className = "member-row";
+
+      var input = document.createElement("input");
+      input.type = "text";
+      input.value = m.name;
+      input.setAttribute("aria-label", "조원 이름 수정");
+      input.addEventListener("change", function () {
+        var v = input.value.trim();
+        m.name = v || m.name;
+        input.value = m.name;
+        save();
+        renderAll();
+      });
+      row.appendChild(input);
+
+      if (hasCompletionBonus(m.id)) {
+        var badge0 = document.createElement("span");
+        badge0.className = "badge-complete";
+        badge0.textContent = "★ 완주";
+        row.appendChild(badge0);
+      }
+
+      var del = document.createElement("button");
+      del.className = "icon-btn";
+      del.type = "button";
+      del.setAttribute("aria-label", "삭제: " + m.name);
+      del.textContent = "✕";
+      del.addEventListener("click", function () {
+        state.members = state.members.filter(function (x) { return x.id !== m.id; });
+        save();
+        renderAll();
+      });
+      row.appendChild(del);
+
+      rosterList.appendChild(row);
+    });
+  }
+
+  function addMember() {
+    var input = document.getElementById("rosterInput");
+    var v = input.value.trim();
+    if (!v) return;
+    state.members.push({ id: makeId(), name: v });
+    input.value = "";
+    save();
+    renderAll();
+  }
+
+  function renderToday() {
+    panelToday.innerHTML = "";
+    if (!state.members.length) {
+      var warn = document.createElement("p");
+      warn.className = "empty-note";
+      warn.textContent = "먼저 \"조원 관리\" 탭에서 조원을 추가해 주세요.";
+      panelToday.appendChild(warn);
+      return;
+    }
+    if (state.dayIndex === 0) {
+      renderMonday();
+    } else if (state.dayIndex >= 1 && state.dayIndex <= 5) {
+      renderQuizDay();
+    } else {
+      renderSunday();
+    }
+  }
+
+  function renderMonday() {
+    var card = document.createElement("div");
+    card.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "월요일 · 인증확인";
+    card.appendChild(h2);
+    var intro = document.createElement("p");
+    intro.className = "status-note";
+    intro.style.marginTop = "0";
+    intro.textContent = "요한복음 " + state.week + "장을 읽고 필사한 인증샷을 카톡으로 받으면, 해당 조원을 눌러 인증 완료로 표시하세요. 인증해야 화~토 퀴즈 채점이 열립니다.";
+    card.appendChild(intro);
+
+    var wd = getWeekData(state.week);
+    state.members.forEach(function (m) {
+      var row = document.createElement("div");
+      row.className = "member-row";
+      var name = document.createElement("span");
+      name.className = "member-name";
+      name.textContent = m.name;
+      row.appendChild(name);
+
+      if (hasCompletionBonus(m.id)) {
+        var badgeM = document.createElement("span");
+        badgeM.className = "badge-complete";
+        badgeM.textContent = "★ 완주";
+        row.appendChild(badgeM);
+      }
+
+      var btn = document.createElement("button");
+      btn.className = "toggle-btn";
+      var on = !!wd.verified[m.id];
+      btn.setAttribute("data-on", on ? "true" : "false");
+      btn.textContent = on ? "인증 완료 ✓" : "인증확인";
+      btn.type = "button";
+      btn.addEventListener("click", function () {
+        wd.verified[m.id] = !wd.verified[m.id];
+        save();
+        renderToday();
+      });
+      row.appendChild(btn);
+      card.appendChild(row);
+
+      // 인증완료 조원은 카톡으로 바로 보낼 안내문구 + 복사 버튼을 행 아래에 표시.
+      // 별도 상태 저장 없이 이름/주차로부터 매번 동일하게 결정론적 생성(새로고침해도 그대로).
+      if (on) {
+        var kakaoBox = document.createElement("div");
+        kakaoBox.className = "kakao-box";
+        var kakaoTextWrap = document.createElement("div");
+        kakaoTextWrap.className = "kakao-text";
+        var kakaoLabel = document.createElement("span");
+        kakaoLabel.className = "kakao-label";
+        kakaoLabel.textContent = "카톡으로 보낼 안내문구";
+        kakaoTextWrap.appendChild(kakaoLabel);
+        var syncDayIndex = state.dayIndex === 0 ? 1 : state.dayIndex;
+        var memberSyncCode = buildSyncCode({ w: state.week, d: syncDayIndex, fv: true });
+        var msgText = "[말씀런] " + m.name + "님, " + state.week + "주차 인증 확인했어요! 화요일부터 퀴즈 도전해보세요.\n동기화 코드: " + memberSyncCode + "\n(조원 앱 상단 코드칸에 붙여넣으면 자동으로 화요일 퀴즈로 이동해요)";
+        kakaoTextWrap.appendChild(document.createTextNode(msgText));
+        kakaoBox.appendChild(kakaoTextWrap);
+
+        var copyBtn = document.createElement("button");
+        copyBtn.className = "nav-btn";
+        copyBtn.type = "button";
+        copyBtn.textContent = "복사";
+        copyBtn.addEventListener("click", function () {
+          copyTextToClipboard(msgText, function (ok) {
+            copyBtn.textContent = ok ? "복사됨 ✓" : "복사 실패";
+            setTimeout(function () { copyBtn.textContent = "복사"; }, 1500);
+          });
+        });
+        kakaoBox.appendChild(copyBtn);
+        card.appendChild(kakaoBox);
+      }
+    });
+    panelToday.appendChild(card);
+  }
+
+  function renderQuizDay() {
+    var quizIdx = state.dayIndex - 1;
+    var weekQuizzes = QUIZ_DATA[state.week];
+    var item = weekQuizzes && weekQuizzes[quizIdx];
+
+    var quizCard = document.createElement("div");
+    quizCard.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = QUIZ_DAY_LABEL[quizIdx] + "요일 퀴즈 · 요한복음 " + state.week + "장";
+    quizCard.appendChild(h2);
+
+    if (!item) {
+      var note = document.createElement("p");
+      note.className = "empty-note";
+      note.textContent = state.week + "주차 퀴즈 데이터가 아직 준비되지 않았어요. 마스터가 새한글성경 원문을 확인해 전달하면 채워집니다. (그동안 아래에서 인증 상태와 이번 주 쿠폰 현황은 계속 볼 수 있어요.)";
+      quizCard.appendChild(note);
+    } else {
+      var ref = document.createElement("p");
+      ref.className = "quiz-ref";
+      ref.textContent = state.week + "장 " + item.ref;
+      quizCard.appendChild(ref);
+
+      var blank = document.createElement("p");
+      blank.className = "quiz-blank";
+      blank.textContent = item.blank;
+      quizCard.appendChild(blank);
+
+      var answerBox = document.createElement("p");
+      var akey = state.week + "-" + quizIdx;
+      answerBox.className = "quiz-answer" + (quizAnswerShown[akey] ? " shown" : "");
+      answerBox.textContent = "정답: " + item.answer;
+      quizCard.appendChild(answerBox);
+
+      var toggleAnswer = document.createElement("button");
+      toggleAnswer.className = "nav-btn";
+      toggleAnswer.type = "button";
+      toggleAnswer.textContent = quizAnswerShown[akey] ? "정답 숨기기" : "정답 보기";
+      toggleAnswer.addEventListener("click", function () {
+        quizAnswerShown[akey] = !quizAnswerShown[akey];
+        renderToday();
+      });
+      quizCard.appendChild(toggleAnswer);
+    }
+    panelToday.appendChild(quizCard);
+
+    var gradeCard = document.createElement("div");
+    gradeCard.className = "card";
+    var h2b = document.createElement("h2");
+    h2b.textContent = "조원별 채점";
+    gradeCard.appendChild(h2b);
+
+    var wd = getWeekData(state.week);
+    state.members.forEach(function (m) {
+      var row = document.createElement("div");
+      row.className = "member-row";
+
+      var name = document.createElement("span");
+      name.className = "member-name";
+      name.textContent = m.name;
+      row.appendChild(name);
+
+      if (hasCompletionBonus(m.id)) {
+        var badgeQ = document.createElement("span");
+        badgeQ.className = "badge-complete";
+        badgeQ.textContent = "★ 완주";
+        row.appendChild(badgeQ);
+      }
+
+      var coupon = document.createElement("span");
+      coupon.className = "member-coupon";
+      coupon.innerHTML = "쿠폰 <b>" + couponsFor(state.week, m.id) + "</b>";
+      row.appendChild(coupon);
+
+      var verified = !!wd.verified[m.id];
+      if (!verified) {
+        var lockedNote = document.createElement("span");
+        lockedNote.className = "locked-note";
+        lockedNote.textContent = "월요일 인증 필요";
+        row.appendChild(lockedNote);
+      }
+
+      var group = document.createElement("div");
+      group.className = "grade-group";
+
+      if (!wd.quiz[m.id]) wd.quiz[m.id] = {};
+      var current = wd.quiz[m.id][quizIdx];
+
+      var okBtn = document.createElement("button");
+      okBtn.className = "grade-btn correct";
+      okBtn.type = "button";
+      okBtn.textContent = "정답";
+      okBtn.disabled = !verified || !item;
+      okBtn.setAttribute("data-active", current === "correct" ? "true" : "false");
+      okBtn.addEventListener("click", function () {
+        wd.quiz[m.id][quizIdx] = current === "correct" ? null : "correct";
+        save();
+        renderToday();
+      });
+      group.appendChild(okBtn);
+
+      var ngBtn = document.createElement("button");
+      ngBtn.className = "grade-btn incorrect";
+      ngBtn.type = "button";
+      ngBtn.textContent = "오답";
+      ngBtn.disabled = !verified || !item;
+      ngBtn.setAttribute("data-active", current === "incorrect" ? "true" : "false");
+      ngBtn.addEventListener("click", function () {
+        wd.quiz[m.id][quizIdx] = current === "incorrect" ? null : "incorrect";
+        save();
+        renderToday();
+      });
+      group.appendChild(ngBtn);
+
+      row.appendChild(group);
+      gradeCard.appendChild(row);
+    });
+    panelToday.appendChild(gradeCard);
+  }
+
+  var selectedSpinnerId = null;
+  // 스핀 결과 "공개" 대기용(비영속) — 커밋은 spin() 클릭 즉시 끝나고, 애니메이션은 이미
+  // 확정된 결과를 나중에 보여주기만 한다. week까지 대조해 다른 주차 화면에는 노출 안 함.
+  var lastSpinReveal = null;
+
+  function renderSunday() {
+    var sumCard = document.createElement("div");
+    sumCard.className = "card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "이번 주 쿠폰 결산";
+    sumCard.appendChild(h2);
+
+    state.members.forEach(function (m) {
+      var row = document.createElement("div");
+      row.className = "member-row";
+      var name = document.createElement("span");
+      name.className = "member-name";
+      name.textContent = m.name;
+      row.appendChild(name);
+
+      if (hasCompletionBonus(m.id)) {
+        var badgeS = document.createElement("span");
+        badgeS.className = "badge-complete";
+        badgeS.textContent = "★ 완주";
+        row.appendChild(badgeS);
+      }
+
+      var c = couponsFor(state.week, m.id);
+      var bonusRemain = bonusSpinsRemaining(m.id);
+      var r = spinsRemaining(state.week, m.id);
+      var couponText = "쿠폰 <b>" + c + "</b>";
+      if (hasCompletionBonus(m.id)) {
+        couponText += " · 완주보너스 " + COMPLETION_BONUS_SPINS + "(잔여 " + bonusRemain + ")";
+      }
+      couponText += " · 남은 스핀 <b>" + r + "</b>" + (r === 0 && (c > 0 || hasCompletionBonus(m.id)) ? " (소진)" : "");
+      var coupon = document.createElement("span");
+      coupon.className = "member-coupon";
+      coupon.innerHTML = couponText;
+      row.appendChild(coupon);
+      sumCard.appendChild(row);
+    });
+    panelToday.appendChild(sumCard);
+
+    var wheelCard = document.createElement("div");
+    wheelCard.className = "card wheel-stage";
+    var h2b = document.createElement("h2");
+    h2b.style.alignSelf = "flex-start";
+    h2b.textContent = "돌림판";
+    wheelCard.appendChild(h2b);
+
+    var pickWrap = document.createElement("div");
+    pickWrap.className = "spinner-pick";
+    var anyRemain = false;
+    state.members.forEach(function (m) {
+      var r = spinsRemaining(state.week, m.id);
+      if (r > 0) anyRemain = true;
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "pick-chip";
+      chip.textContent = (hasCompletionBonus(m.id) ? "★ " : "") + m.name + " (" + r + ")";
+      chip.disabled = r <= 0;
+      chip.setAttribute("aria-pressed", selectedSpinnerId === m.id ? "true" : "false");
+      chip.addEventListener("click", function () {
+        selectedSpinnerId = selectedSpinnerId === m.id ? null : m.id;
+        renderToday();
+      });
+      pickWrap.appendChild(chip);
+    });
+    wheelCard.appendChild(pickWrap);
+
+    if (!anyRemain) {
+      var note = document.createElement("p");
+      note.className = "empty-note";
+      note.textContent = "이번 주 남은 스핀이 있는 조원이 없어요. 화~토 퀴즈 정답을 채점하면 쿠폰이 쌓이고, 그 수만큼 여기서 스핀할 수 있어요.";
+      wheelCard.appendChild(note);
+    }
+
+    var wheelWrap = document.createElement("div");
+    wheelWrap.className = "wheel-wrap";
+    wheelWrap.innerHTML = '<div class="pointer" aria-hidden="true"></div>' +
+      '<canvas class="wheel-disc" id="wheelCanvas" width="480" height="480" role="img" aria-label="상품 돌림판"></canvas>' +
+      '<div class="hub" aria-hidden="true"></div>';
+    wheelCard.appendChild(wheelWrap);
+
+    var spinBtn = document.createElement("button");
+    spinBtn.className = "spin-btn";
+    spinBtn.type = "button";
+    spinBtn.id = "spinBtn";
+    spinBtn.textContent = "돌려요";
+    spinBtn.disabled = !selectedSpinnerId || spinsRemaining(state.week, selectedSpinnerId) <= 0;
+    wheelCard.appendChild(spinBtn);
+
+    var resultText = document.createElement("p");
+    resultText.className = "result";
+    resultText.id = "spinResult";
+    resultText.setAttribute("aria-live", "polite");
+    if (lastSpinReveal && lastSpinReveal.week === state.week) {
+      resultText.textContent = lastSpinReveal.mname + " 님, " + lastSpinReveal.prize + "!";
+      resultText.classList.add("flash");
+    }
+    lastSpinReveal = null; // 이번 렌더에서 다른 주차라 표시 안 했든 방금 표시했든, 1회성이라 비운다
+    wheelCard.appendChild(resultText);
+
+    panelToday.appendChild(wheelCard);
+
+    var editCard = document.createElement("div");
+    editCard.className = "card";
+    var h2c = document.createElement("h2");
+    h2c.textContent = "상품 목록";
+    editCard.appendChild(h2c);
+    var prizeList = document.createElement("ul");
+    prizeList.className = "prize-list";
+    state.wheel.prizes.forEach(function (p, i) {
+      var li = document.createElement("li");
+      li.className = "prize-item";
+      var sw = document.createElement("span");
+      sw.className = "swatch";
+      sw.style.background = WHEEL_COLORS[i % WHEEL_COLORS.length];
+      li.appendChild(sw);
+      var input = document.createElement("input");
+      input.type = "text";
+      input.value = p;
+      input.addEventListener("change", function () {
+        if (spinning) { input.value = p; return; } // 스핀 도중 목록이 바뀌면 이미 확정된 idx와 화면 각도계산이 어긋날 수 있어 차단
+        state.wheel.prizes[i] = input.value.trim() || p;
+        save();
+        drawWheel();
+      });
+      li.appendChild(input);
+      var del = document.createElement("button");
+      del.className = "icon-btn";
+      del.type = "button";
+      del.setAttribute("aria-label", "상품 삭제: " + p);
+      del.textContent = "✕";
+      del.addEventListener("click", function () {
+        if (spinning) return; // 스핀 도중 목록 길이가 바뀌면 세그먼트 각도(360/n)가 어긋남
+        if (state.wheel.prizes.length <= 2) return;
+        state.wheel.prizes.splice(i, 1);
+        save();
+        renderToday();
+      });
+      li.appendChild(del);
+      prizeList.appendChild(li);
+    });
+    editCard.appendChild(prizeList);
+    var addRow = document.createElement("div");
+    addRow.className = "roster-add";
+    var prizeInput = document.createElement("input");
+    prizeInput.type = "text";
+    prizeInput.placeholder = "새 상품 추가";
+    var addBtn = document.createElement("button");
+    addBtn.className = "action-btn primary";
+    addBtn.type = "button";
+    addBtn.textContent = "추가";
+    addBtn.addEventListener("click", function () {
+      if (spinning) return; // 스핀 도중 목록 길이가 바뀌면 세그먼트 각도(360/n)가 어긋남
+      var v = prizeInput.value.trim();
+      if (!v) return;
+      state.wheel.prizes.push(v);
+      save();
+      renderToday();
+    });
+    addRow.appendChild(prizeInput);
+    addRow.appendChild(addBtn);
+    editCard.appendChild(addRow);
+    panelToday.appendChild(editCard);
+
+    var histCard = document.createElement("div");
+    histCard.className = "card";
+    var h2d = document.createElement("h2");
+    h2d.textContent = "당첨 기록";
+    histCard.appendChild(h2d);
+    var hist = document.createElement("ul");
+    hist.className = "history";
+    if (!state.wheel.history.length) {
+      var e2 = document.createElement("p");
+      e2.className = "empty-note";
+      e2.textContent = "아직 기록이 없어요.";
+      histCard.appendChild(e2);
+    } else {
+      state.wheel.history.slice(-30).forEach(function (h) {
+        var li = document.createElement("li");
+        var who = document.createElement("span");
+        who.className = "who";
+        who.textContent = h.name;
+        var prize = document.createElement("span");
+        prize.className = "prize";
+        prize.textContent = h.prize;
+        var time = document.createElement("span");
+        time.className = "time";
+        time.textContent = h.week + "주차 " + h.time;
+        prize.appendChild(time);
+        li.appendChild(who);
+        li.appendChild(prize);
+        hist.appendChild(li);
+      });
+      histCard.appendChild(hist);
+    }
+    panelToday.appendChild(histCard);
+
+    drawWheel();
+
+    spinBtn.addEventListener("click", function () {
+      spin();
+    });
+
+    function drawWheel() {
+      var canvas = document.getElementById("wheelCanvas");
+      if (!canvas) return;
+      var ctx = canvas.getContext("2d");
+      var prizes = state.wheel.prizes;
+      var n = prizes.length;
+      var size = canvas.width;
+      var cx = size / 2, cy = size / 2, r = size / 2 - 6;
+      ctx.clearRect(0, 0, size, size);
+      var seg = (Math.PI * 2) / n;
+      var start = -Math.PI / 2 - seg / 2;
+      for (var i = 0; i < n; i++) {
+        var a0 = start + i * seg;
+        var a1 = a0 + seg;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, a0, a1);
+        ctx.closePath();
+        ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+        ctx.fill();
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(a0 + seg / 2);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fdf8ec";
+        ctx.font = "600 " + Math.max(12, size * 0.03) + "px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+        var label = prizes[i];
+        var maxW = r * 0.6;
+        while (ctx.measureText(label).width > maxW && label.length > 2) {
+          label = label.slice(0, -2) + "…";
+        }
+        ctx.fillText(label, r - 16, 0);
+        ctx.restore();
+      }
+      canvas.style.transform = "rotate(" + state.wheel.rotation + "deg)";
+    }
+
+    var spinning = false;
+    function spin() {
+      if (spinning || !selectedSpinnerId) return;
+      var spinnerId = selectedSpinnerId; // 이후 다른 조작으로 selectedSpinnerId가 바뀌어도 안전하도록 값 고정
+      var remain = spinsRemaining(state.week, spinnerId);
+      if (remain <= 0) return;
+      var canvas = document.getElementById("wheelCanvas");
+      if (!canvas) return;
+      var n = state.wheel.prizes.length;
+
+      var idx = Math.floor(Math.random() * n);
+      var prize = state.wheel.prizes[idx];
+      var memberObj = state.members.filter(function (x) { return x.id === spinnerId; })[0];
+      var mname = memberObj ? memberObj.name : "참가자";
+
+      // ---- 커밋(애니메이션 시작 전, 되돌릴 수 없이 즉시 확정) ----
+      // "무엇에 당첨됐는지"를 먼저 정해서 저장하고, 애니메이션은 그걸 나중에 보여주기만 한다.
+      // 이렇게 해야 애니메이션 도중 다른 조원 선택/요일·주차 이동으로 canvas가 DOM에서
+      // 사라져 transitionend가 영원히 안 와도 쿠폰/보너스 차감과 기록이 이미 끝나 있다.
+      var wd = getWeekData(state.week);
+      if (weeklySpinsRemaining(state.week, spinnerId) > 0) {
+        wd.spinsUsed[spinnerId] = (wd.spinsUsed[spinnerId] || 0) + 1;
+      } else {
+        state.bonusSpinsUsed[spinnerId] = (state.bonusSpinsUsed[spinnerId] || 0) + 1;
+      }
+      var now = new Date();
+      var hh = String(now.getHours()).padStart(2, "0");
+      var mm = String(now.getMinutes()).padStart(2, "0");
+      state.wheel.history.push({ name: mname, prize: prize, time: hh + ":" + mm, week: state.week });
+
+      // 캔버스는 세그먼트 i의 중심을 각도 (-90 + i*segDeg)도(12시 방향 기준)에 그린다(drawWheel의
+      // start = -PI/2 - seg/2 및 ctx.rotate(a0+seg/2) 참고). 포인터는 화면 고정 12시 위치이므로,
+      // "회전 후 절대각도 mod 360 == -targetCenter mod 360"이 되어야 세그먼트 i가 포인터 아래로 온다.
+      // rotation은 스핀마다 누적(+=)되므로, 이전 스핀들이 남긴 잔여각(currentMod)을 반드시 상쇄해야
+      // idx로 뽑은 상품과 실제로 멈추는 위치가 일치한다 — 이 상쇄항이 빠져 있던 것이 이번 버그의
+      // 근본 원인이었다(첫 스핀은 잔여각이 0이라 우연히 맞고, 두 번째 스핀부터 어긋남).
+      var segDeg = 360 / n;
+      var targetCenter = idx * segDeg;
+      var currentMod = ((state.wheel.rotation % 360) + 360) % 360;
+      var neededBase = (((-targetCenter - currentMod) % 360) + 360) % 360;
+      var jitter = (Math.random() - 0.5) * segDeg * 0.6;
+      var extraTurns = 6 + Math.floor(Math.random() * 3);
+      var delta = extraTurns * 360 + neededBase + jitter;
+      state.wheel.rotation += delta;
+
+      if (spinsRemaining(state.week, spinnerId) <= 0) selectedSpinnerId = null;
+      lastSpinReveal = { mname: mname, prize: prize, week: state.week };
+      save();
+      // ---- 커밋 끝 — 이 시점부터는 화면이 뭘 하든(끊기든 말든) 상태는 이미 정확하다 ----
+
+      spinning = true;
+      var resultEl = document.getElementById("spinResult");
+      var btn = document.getElementById("spinBtn");
+      btn.disabled = true;
+      resultEl.textContent = "";
+      resultEl.classList.remove("flash");
+      canvas.classList.add("spinning");
+      canvas.style.transform = "rotate(" + state.wheel.rotation + "deg)";
+
+      function onEnd() {
+        canvas.removeEventListener("transitionend", onEnd);
+        spinning = false;
+        renderToday(); // 순수 "공개" — lastSpinReveal을 renderSunday가 표시하고 스스로 비움
+      }
+      canvas.addEventListener("transitionend", onEnd);
+    }
+  }
+
+  function renderAll() {
+    renderStatusBar();
+    renderRoster();
+    renderToday();
+  }
+
+  // ---------- 이벤트 ----------
+  document.getElementById("rosterAddBtn").addEventListener("click", addMember);
+  document.getElementById("rosterInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); addMember(); }
+  });
+
+  document.getElementById("prevDayBtn").addEventListener("click", function () {
+    var d = state.dayIndex - 1, w = state.week;
+    if (d < 0) { d = 6; w -= 1; }
+    if (w < 1) { w = 1; d = 0; }
+    state.week = w; state.dayIndex = d;
+    save(); renderAll();
+  });
+  document.getElementById("nextDayBtn").addEventListener("click", function () {
+    var d = state.dayIndex + 1, w = state.week;
+    if (d > 6) { d = 0; w += 1; }
+    if (w > TOTAL_WEEKS) { w = TOTAL_WEEKS; d = 6; }
+    state.week = w; state.dayIndex = d;
+    save(); renderAll();
+  });
+  document.getElementById("syncTodayBtn").addEventListener("click", function () {
+    if (!state.startDate) {
+      startDateNote.textContent = "먼저 설정 탭에서 시작일을 지정해 주세요.";
+      return;
+    }
+    var p = calcPointerFromStart(state.startDate);
+    state.week = p.week; state.dayIndex = p.dayIndex;
+    save(); renderAll();
+  });
+
+  var nextWeekBtn = document.getElementById("nextWeekBtn");
+  var nextWeekArmTimer = null;
+  nextWeekBtn.addEventListener("click", function () {
+    if (!nextWeekArmed) {
+      nextWeekArmed = true;
+      nextWeekBtn.classList.add("armed");
+      nextWeekBtn.textContent = "정말 다음 주로? 다시 탭";
+      nextWeekArmTimer = setTimeout(function () {
+        nextWeekArmed = false;
+        nextWeekBtn.classList.remove("armed");
+        nextWeekBtn.textContent = "다음 주로 ▶▶";
+      }, 4000);
+      return;
+    }
+    clearTimeout(nextWeekArmTimer);
+    nextWeekArmed = false;
+    nextWeekBtn.classList.remove("armed");
+    nextWeekBtn.textContent = "다음 주로 ▶▶";
+    if (state.week < TOTAL_WEEKS) state.week += 1;
+    state.dayIndex = 0;
+    selectedSpinnerId = null;
+    save(); renderAll();
+  });
+
+  document.getElementById("startDateBtn").addEventListener("click", function () {
+    var v = startDateInput.value;
+    if (!v) return;
+    state.startDate = v;
+    var p = calcPointerFromStart(v);
+    state.week = p.week; state.dayIndex = p.dayIndex;
+    save(); renderAll();
+  });
+
+  // 오늘의 동기화 코드(그룹 공통) — 리더의 현재 week/dayIndex를 그대로 담되, 인증여부(fv)는
+  // 넣지 않는다(이미 인증된 조원의 verified 값을 이 코드가 건드리지 않도록 하기 위함 —
+  // 인증은 오직 개별 조원 코드(월요일 인증확인 클릭 시 생성)로만 true가 된다).
+  var groupSyncCodeBtn = document.getElementById("groupSyncCodeBtn");
+  var groupSyncCodeBox = document.getElementById("groupSyncCodeBox");
+  var groupSyncCodeText = document.getElementById("groupSyncCodeText");
+  var groupSyncCodeCopyBtn = document.getElementById("groupSyncCodeCopyBtn");
+  groupSyncCodeBtn.addEventListener("click", function () {
+    var code = buildSyncCode({ w: state.week, d: state.dayIndex });
+    var msg = "[말씀런] 오늘 동기화 코드예요! 이미 인증된 분들은 아래 코드를 조원 앱 상단 코드칸에 붙여넣어 주세요.\n동기화 코드: " + code;
+    groupSyncCodeText.textContent = msg;
+    groupSyncCodeBox.style.display = "flex";
+    groupSyncCodeCopyBtn.textContent = "복사";
+    groupSyncCodeCopyBtn.onclick = function () {
+      copyTextToClipboard(msg, function (ok) {
+        groupSyncCodeCopyBtn.textContent = ok ? "복사됨 ✓" : "복사 실패";
+        setTimeout(function () { groupSyncCodeCopyBtn.textContent = "복사"; }, 1500);
+      });
+    };
+  });
+
+  var resetBtn = document.getElementById("resetAllBtn");
+  var resetArmTimer = null;
+  resetBtn.addEventListener("click", function () {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetBtn.classList.add("armed");
+      resetBtn.textContent = "정말 초기화? 다시 탭";
+      resetArmTimer = setTimeout(function () {
+        resetArmed = false;
+        resetBtn.classList.remove("armed");
+        resetBtn.textContent = "전체 데이터 초기화";
+      }, 4000);
+      return;
+    }
+    clearTimeout(resetArmTimer);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    state = defaultState();
+    selectedSpinnerId = null;
+    resetArmed = false;
+    resetBtn.classList.remove("armed");
+    resetBtn.textContent = "전체 데이터 초기화";
+    save(); renderAll();
+  });
+
+  // 탭 전환
+  var tabs = [
+    { btn: document.getElementById("tabBtnToday"), panel: document.getElementById("panelToday") },
+    { btn: document.getElementById("tabBtnRoster"), panel: document.getElementById("panelRoster") },
+    { btn: document.getElementById("tabBtnSettings"), panel: document.getElementById("panelSettings") }
+  ];
+  tabs.forEach(function (t) {
+    t.btn.addEventListener("click", function () {
+      tabs.forEach(function (o) {
+        o.btn.setAttribute("aria-selected", o === t ? "true" : "false");
+        o.panel.classList.toggle("active", o === t);
+      });
+    });
+  });
+
+  // 테마
+  var themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", function () {
+    var root = document.documentElement;
+    var current = root.getAttribute("data-theme");
+    var next = current === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    state.themeSaved = next;
+    save();
+  });
+  if (state.themeSaved) document.documentElement.setAttribute("data-theme", state.themeSaved);
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
