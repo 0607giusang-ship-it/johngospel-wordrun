@@ -1079,29 +1079,40 @@
   if (state.themeSaved) document.documentElement.setAttribute("data-theme", state.themeSaved);
 
   // Firebase 준비되는 즉시(페어링 정보가 있을 때만) 그룹·멤버 문서에 실시간 리스너를 건다.
-  // 두 값(week/dayIndex, verified) 중 하나라도 바뀌면 새로고침·코드 입력 없이 즉시 로컬
-  // state에 반영해 화면을 다시 그린다. 준비가 안 되거나 페어링이 없으면 조용히 아무 것도
-  // 하지 않음 — 기존 수동 동기화 코드 입력(#syncCodeInput)은 항상 그대로 동작한다.
+  // 그룹 문서(공통 week/dayIndex)와 멤버 문서(이 조원만의 verified)는 별개 스냅샷으로
+  // 독립 도착하므로, 최근 수신값을 각각 저장해뒀다가 매번 함께 조합해 반영한다 — 기존 수동
+  // 동기화 코드의 "월요일(dayIndex 0)에 인증되면 그 조원만 화요일로" 로직(리더 앱의
+  // syncDayIndex = state.dayIndex===0 ? 1 : state.dayIndex, fv:true)과 동일한 결과가 되도록
+  // 그대로 재현한다 — 그렇지 않으면 리더가 nextDayBtn까지 눌러야만 넘어가버려 "인증하면 바로
+  // 다음부터 퀴즈가 자동으로 뜨게" 해달라는 오너 요청의 핵심이 깨진다.
+  var lastGroupData = null;
+  var lastMemberData = null;
+  function applyRealtimeState() {
+    if (!lastGroupData) return;
+    var week = lastGroupData.week;
+    var dayIndex = lastGroupData.dayIndex;
+    var verifiedForThisWeek = !!(lastMemberData && lastMemberData.verified && lastMemberData.verifiedWeek === week);
+    if (dayIndex === 0 && verifiedForThisWeek) dayIndex = 1;
+    var weekChanged = week !== state.week;
+    state.week = week;
+    state.dayIndex = dayIndex;
+    if (verifiedForThisWeek) getWeekData(week).verified = true;
+    if (weekChanged) showSubmitForm = {};
+    save();
+    renderAll();
+  }
   if (window.WR21FB && window.WR21FB.ready) {
     window.WR21FB.ready.then(function (fb) {
       fbApi = fb;
       if (!state.groupId || !state.memberId) return;
       fb.watchGroup(state.groupId, function (data) {
-        var weekChanged = typeof data.week === "number" && data.week !== state.week;
-        if (typeof data.week === "number") state.week = data.week;
-        if (typeof data.dayIndex === "number") state.dayIndex = data.dayIndex;
-        if (weekChanged) showSubmitForm = {};
-        save();
-        renderAll();
+        lastGroupData = data;
+        applyRealtimeState();
       });
       fb.watchMember(state.groupId, state.memberId, function (data) {
-        var changed = false;
-        if (data.name && !state.name) { state.name = data.name; changed = true; }
-        if (typeof data.verified === "boolean" && typeof data.verifiedWeek === "number") {
-          var wd = getWeekData(data.verifiedWeek);
-          if (wd.verified !== data.verified) { wd.verified = data.verified; changed = true; }
-        }
-        if (changed) { save(); renderAll(); }
+        if (data.name && !state.name) { state.name = data.name; save(); }
+        lastMemberData = data;
+        applyRealtimeState();
       });
     }).catch(function () {});
   }
