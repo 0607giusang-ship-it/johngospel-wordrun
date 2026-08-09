@@ -311,6 +311,39 @@
   .icon-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
   .icon-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 
+  .qr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 8, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 20;
+  }
+  .qr-modal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+  }
+  .qr-modal-card h3 { margin: 0 0 4px; }
+  .qr-modal-card .qr-modal-name { color: var(--gold); font-weight: 700; }
+  .qr-modal-card canvas { margin: 14px auto; border-radius: 10px; }
+  .qr-modal-card .qr-modal-link {
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    word-break: break-all;
+    background: var(--bg-soft);
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+  }
+  .qr-modal-card .qr-modal-actions { display: flex; gap: 8px; justify-content: center; }
+
   .settings-row { margin-bottom: 14px; }
   .settings-row label { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
   .settings-row .row-inline { display: flex; gap: 8px; }
@@ -388,7 +421,7 @@
 <div class="page">
   <p class="eyebrow">필사 × 읽기 소그룹 게임 · 리더용</p>
   <h1>요한복음 21주 말씀런</h1>
-  <p class="sub">이 화면은 리더 휴대폰 1대에만 저장됩니다(외부 서버 전송 없음). 조원 명단·인증·채점·쿠폰 기록이 모두 이 기기의 브라우저에만 남아요.</p>
+  <p class="sub">조원 명단·인증·채점·쿠폰 기록은 이 기기에 저장되고, 주차·요일 진행상황과 조원 이름·인증여부만 조원 앱 자동연동을 위해 클라우드(Firebase)에도 함께 저장됩니다.</p>
 
   <div class="status-bar">
     <div class="status-top">
@@ -452,6 +485,103 @@
   </div>
 </div>
 
+<div class="qr-modal-overlay" id="qrModalOverlay" style="display:none;">
+  <div class="qr-modal-card">
+    <h3>조원 등록 QR</h3>
+    <p class="qr-modal-name" id="qrModalName"></p>
+    <canvas id="qrModalCanvas" width="240" height="240"></canvas>
+    <div class="qr-modal-link" id="qrModalLink"></div>
+    <p class="status-note" id="qrModalNote">조원이 이 QR을 한 번만 스캔하면, 그 뒤로는 이름·코드 입력 없이 리더의 인증확인·진행에 맞춰 자동으로 화면이 넘어가요. 스캔이 어려우면 카톡으로 아래 링크를 보내도 돼요(21주 중 딱 1번만 필요해요).</p>
+    <div class="qr-modal-actions">
+      <button class="nav-btn" id="qrModalCopyBtn" type="button">링크 복사</button>
+      <button class="action-btn primary" id="qrModalCloseBtn" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+<script>
+  // Firebase(Firestore+익명인증) 브릿지 — 기존 대형 IIFE(classic script)와 별개로 먼저
+  // 실행되어 window.WR21FB를 동기적으로 만들어 둔다(그래야 아래 메인 스크립트가 로드 순간
+  // window.WR21FB를 참조해도 undefined가 아니다). 실제 Firebase SDK(v9+ 모듈형)는 동적
+  // import()로 비동기 로드하므로 이 태그 자체는 type="module"일 필요가 없다 — 그 덕에
+  // "모듈 스크립트는 파싱 후 지연 실행된다" vs "classic 스크립트는 만난 즉시 동기 실행된다"는
+  // 순서 문제를 피할 수 있다. import()가 실패해도(오프라인·CDN 차단 등) 아래 메서드들은
+  // 그냥 정의되지 않은 채로 남고, 모든 호출부는 "fbApi가 있을 때만" 호출하도록 방어돼 있어
+  // 기존 로컬/오프라인 코드경로는 전혀 영향받지 않는다.
+  window.WR21FB = (function () {
+    var firebaseConfig = {
+      apiKey: "AIzaSyA62EWk2CWgA1AA3MZzsQYgJAi29vzHpiA",
+      authDomain: "wordrun-b66ed.firebaseapp.com",
+      projectId: "wordrun-b66ed",
+      storageBucket: "wordrun-b66ed.firebasestorage.app",
+      messagingSenderId: "438794618880",
+      appId: "1:438794618880:web:50b25d08ac7d7595afb0e5"
+    };
+    var readyResolve;
+    var api = { ready: new Promise(function (res) { readyResolve = res; }) };
+    Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js")
+    ]).then(function (mods) {
+      var appMod = mods[0], authMod = mods[1], fsMod = mods[2];
+      var app = appMod.initializeApp(firebaseConfig);
+      var auth = authMod.getAuth(app);
+      var db = fsMod.getFirestore(app);
+      function ensureAuth() {
+        return new Promise(function (resolve, reject) {
+          var unsub = authMod.onAuthStateChanged(auth, function (user) {
+            unsub();
+            if (user) { resolve(user); return; }
+            authMod.signInAnonymously(auth).then(function (cred) { resolve(cred.user); }).catch(reject);
+          }, reject);
+        });
+      }
+      api.setGroupState = function (groupId, data) {
+        return ensureAuth().then(function () {
+          return fsMod.setDoc(fsMod.doc(db, "groups", groupId), {
+            week: data.week, dayIndex: data.dayIndex, updatedAt: fsMod.serverTimestamp()
+          }, { merge: true });
+        });
+      };
+      api.createMemberDoc = function (groupId, memberId, data) {
+        return ensureAuth().then(function () {
+          return fsMod.setDoc(fsMod.doc(db, "groups", groupId, "members", memberId), data, { merge: true });
+        });
+      };
+      api.setMemberVerified = function (groupId, memberId, verified, week) {
+        return ensureAuth().then(function () {
+          return fsMod.setDoc(fsMod.doc(db, "groups", groupId, "members", memberId), {
+            verified: verified, verifiedWeek: week, verifiedAt: fsMod.serverTimestamp()
+          }, { merge: true });
+        });
+      };
+      api.watchGroup = function (groupId, cb) {
+        return ensureAuth().then(function () {
+          return fsMod.onSnapshot(fsMod.doc(db, "groups", groupId), function (snap) {
+            if (snap.exists()) cb(snap.data());
+          }, function (err) {
+            console.warn("[말씀런] 그룹 실시간 연결 오류(오프라인 진행에는 영향 없음):", err);
+          });
+        });
+      };
+      api.watchMember = function (groupId, memberId, cb) {
+        return ensureAuth().then(function () {
+          return fsMod.onSnapshot(fsMod.doc(db, "groups", groupId, "members", memberId), function (snap) {
+            if (snap.exists()) cb(snap.data());
+          }, function (err) {
+            console.warn("[말씀런] 조원 실시간 연결 오류(오프라인 진행에는 영향 없음):", err);
+          });
+        });
+      };
+      readyResolve(api);
+    }).catch(function (e) {
+      console.warn("[말씀런] Firebase 초기화 실패 — 오프라인/로컬 모드로 계속 진행합니다.", e);
+    });
+    return api;
+  })();
+</script>
 <script>
 (function () {
   "use strict";
@@ -468,6 +598,16 @@
     "대표기도",
     "은혜만땅!"
   ];
+
+  // ---------- Firebase 실시간 연동(그룹 코드·조원 등록 QR) ----------
+  var MEMBER_APP_URL = "https://0607giusang-ship-it.github.io/johngospel-wordrun/member.html";
+  var GROUP_ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 0/O/1/I 등 헷갈리는 글자 제외
+  function makeGroupId() {
+    var s = "";
+    for (var i = 0; i < 6; i++) s += GROUP_ID_CHARS[Math.floor(Math.random() * GROUP_ID_CHARS.length)];
+    return s;
+  }
+  var fbApi = null; // window.WR21FB.ready 완료 후 채워짐(그 전까지는 모든 sync 호출이 조용히 스킵됨)
 
   // 1~21장 전체 데이터 확정 반영(2026-08-06, master가 새한글성경 원문 직접 확인 후 위임).
   var QUIZ_DATA = {
@@ -671,7 +811,8 @@
       weekData: {},
       bonusSpinsUsed: {},
       wheel: { prizes: DEFAULT_PRIZES.slice(), history: [], rotation: 0 },
-      themeSaved: null
+      themeSaved: null,
+      groupId: null
     };
   }
 
@@ -709,6 +850,26 @@
   if (typeof state.week !== "number" || state.week < 1) state.week = 1;
   if (state.week > TOTAL_WEEKS) state.week = TOTAL_WEEKS;
   if (typeof state.dayIndex !== "number" || state.dayIndex < 0 || state.dayIndex > 6) state.dayIndex = 0;
+  if (!state.groupId) { state.groupId = makeGroupId(); save(); }
+
+  // Firebase 준비되는 즉시 현재 week/dayIndex를 그룹 문서로 1회 반영 + 이후 sync 헬퍼들이
+  // 쓸 fbApi를 채워둔다. 준비가 안 되거나(오프라인 등) 실패해도 조용히 무시 — 로컬 진행에는
+  // 영향 없음(기존 오프라인 코드경로 보존).
+  if (window.WR21FB && window.WR21FB.ready) {
+    window.WR21FB.ready.then(function (fb) {
+      fbApi = fb;
+      fb.setGroupState(state.groupId, { week: state.week, dayIndex: state.dayIndex }).catch(function () {});
+    }).catch(function () {});
+  }
+  function syncGroupToFirebase() {
+    if (fbApi) fbApi.setGroupState(state.groupId, { week: state.week, dayIndex: state.dayIndex }).catch(function () {});
+  }
+  function syncMemberCreateToFirebase(m) {
+    if (fbApi) fbApi.createMemberDoc(state.groupId, m.id, { name: m.name, verified: false, verifiedWeek: null, verifiedAt: null }).catch(function () {});
+  }
+  function syncMemberVerifiedToFirebase(memberId, verified) {
+    if (fbApi) fbApi.setMemberVerified(state.groupId, memberId, verified, state.week).catch(function () {});
+  }
 
   function getWeekData(w) {
     var key = String(w);
@@ -795,10 +956,43 @@
   var dayLabel = document.getElementById("dayLabel");
   var startDateNote = document.getElementById("startDateNote");
   var startDateInput = document.getElementById("startDateInput");
+  var qrModalOverlay = document.getElementById("qrModalOverlay");
+  var qrModalName = document.getElementById("qrModalName");
+  var qrModalCanvas = document.getElementById("qrModalCanvas");
+  var qrModalLink = document.getElementById("qrModalLink");
+  var qrModalCopyBtn = document.getElementById("qrModalCopyBtn");
+  var qrModalCloseBtn = document.getElementById("qrModalCloseBtn");
 
   var nextWeekArmed = false;
   var resetArmed = false;
   var quizAnswerShown = {};
+
+  // 조원별 등록 QR 모달 — member.html?g=<groupId>&m=<memberId> 링크를 그 자리에서 캔버스로
+  // 그린다(오프라인 이미지 생성용 pyzbar/Pillow 대신 클라이언트 qrcode.js 사용, 21주 중 1회용).
+  function openMemberQrModal(m) {
+    var url = MEMBER_APP_URL + "?g=" + encodeURIComponent(state.groupId) + "&m=" + encodeURIComponent(m.id);
+    qrModalName.textContent = m.name;
+    qrModalLink.textContent = url;
+    qrModalOverlay.style.display = "flex";
+    if (window.QRCode && typeof window.QRCode.toCanvas === "function") {
+      window.QRCode.toCanvas(qrModalCanvas, url, { width: 240, margin: 1 }, function (err) {
+        if (err) console.warn("[말씀런] QR 렌더 실패:", err);
+      });
+    }
+    qrModalCopyBtn.onclick = function () {
+      copyTextToClipboard(url, function (ok) {
+        qrModalCopyBtn.textContent = ok ? "복사됨 ✓" : "복사 실패";
+        setTimeout(function () { qrModalCopyBtn.textContent = "링크 복사"; }, 1500);
+      });
+    };
+  }
+  function closeMemberQrModal() {
+    qrModalOverlay.style.display = "none";
+  }
+  qrModalCloseBtn.addEventListener("click", closeMemberQrModal);
+  qrModalOverlay.addEventListener("click", function (e) {
+    if (e.target === qrModalOverlay) closeMemberQrModal();
+  });
 
   function renderStatusBar() {
     weekLabel.textContent = state.week;
@@ -845,6 +1039,15 @@
         row.appendChild(badge0);
       }
 
+      var qrBtn = document.createElement("button");
+      qrBtn.className = "nav-btn";
+      qrBtn.type = "button";
+      qrBtn.textContent = "등록 QR 보기";
+      qrBtn.addEventListener("click", function () {
+        openMemberQrModal(m);
+      });
+      row.appendChild(qrBtn);
+
       var del = document.createElement("button");
       del.className = "icon-btn";
       del.type = "button";
@@ -865,9 +1068,11 @@
     var input = document.getElementById("rosterInput");
     var v = input.value.trim();
     if (!v) return;
-    state.members.push({ id: makeId(), name: v });
+    var newMember = { id: makeId(), name: v };
+    state.members.push(newMember);
     input.value = "";
     save();
+    syncMemberCreateToFirebase(newMember);
     renderAll();
   }
 
@@ -926,6 +1131,7 @@
       btn.addEventListener("click", function () {
         wd.verified[m.id] = !wd.verified[m.id];
         save();
+        syncMemberVerifiedToFirebase(m.id, wd.verified[m.id]);
         renderToday();
       });
       row.appendChild(btn);
@@ -1413,14 +1619,14 @@
     if (d < 0) { d = 6; w -= 1; }
     if (w < 1) { w = 1; d = 0; }
     state.week = w; state.dayIndex = d;
-    save(); renderAll();
+    save(); syncGroupToFirebase(); renderAll();
   });
   document.getElementById("nextDayBtn").addEventListener("click", function () {
     var d = state.dayIndex + 1, w = state.week;
     if (d > 6) { d = 0; w += 1; }
     if (w > TOTAL_WEEKS) { w = TOTAL_WEEKS; d = 6; }
     state.week = w; state.dayIndex = d;
-    save(); renderAll();
+    save(); syncGroupToFirebase(); renderAll();
   });
   document.getElementById("syncTodayBtn").addEventListener("click", function () {
     if (!state.startDate) {
@@ -1429,7 +1635,7 @@
     }
     var p = calcPointerFromStart(state.startDate);
     state.week = p.week; state.dayIndex = p.dayIndex;
-    save(); renderAll();
+    save(); syncGroupToFirebase(); renderAll();
   });
 
   var nextWeekBtn = document.getElementById("nextWeekBtn");
@@ -1453,7 +1659,7 @@
     if (state.week < TOTAL_WEEKS) state.week += 1;
     state.dayIndex = 0;
     selectedSpinnerId = null;
-    save(); renderAll();
+    save(); syncGroupToFirebase(); renderAll();
   });
 
   document.getElementById("startDateBtn").addEventListener("click", function () {
@@ -1462,7 +1668,7 @@
     state.startDate = v;
     var p = calcPointerFromStart(v);
     state.week = p.week; state.dayIndex = p.dayIndex;
-    save(); renderAll();
+    save(); syncGroupToFirebase(); renderAll();
   });
 
   // 오늘의 동기화 코드(그룹 공통) — 리더의 현재 week/dayIndex를 그대로 담되, 인증여부(fv)는

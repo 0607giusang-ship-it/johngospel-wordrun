@@ -276,7 +276,7 @@
 <div class="page">
   <p class="eyebrow"><span class="member-badge">조원용</span>필사 × 읽기 소그룹 게임</p>
   <h1>요한복음 21주 말씀런</h1>
-  <p class="sub">이 화면은 내 휴대폰에만 저장됩니다(외부 서버 전송 없음). 리더와의 소통은 카카오톡으로 이루어져요 — 이 앱은 그 과정을 도와주는 개인용 도구예요.</p>
+  <p class="sub">이름·제출 답안은 이 기기에 저장돼요. 리더가 등록해준 QR로 연결되면, 주차·요일 진행상황과 인증여부만 자동 동기화를 위해 클라우드(Firebase)에도 함께 저장돼요.</p>
 
   <div id="onboardArea"></div>
 
@@ -318,6 +318,67 @@
   </div>
 </div>
 
+<script>
+  // Firebase(Firestore+익명인증) 브릿지 — leader.html과 동일한 패턴. classic script라
+  // 아래 메인 IIFE보다 먼저(문서 순서대로) 동기 실행되어 window.WR21FB를 즉시 만들어 두고,
+  // 실제 SDK는 동적 import()로 비동기 로드한다. 조원 화면에는 로그인 UI가 절대 노출되지
+  // 않는다(ensureAuth가 signInAnonymously를 자동 수행). import 실패(오프라인/CDN 차단)해도
+  // 아래 메서드들이 정의되지 않을 뿐 — 모든 호출부가 fbApi 존재 여부로 방어돼 있어 기존
+  // 로컬/수동 동기화 코드 경로는 전혀 영향받지 않는다.
+  window.WR21FB = (function () {
+    var firebaseConfig = {
+      apiKey: "AIzaSyA62EWk2CWgA1AA3MZzsQYgJAi29vzHpiA",
+      authDomain: "wordrun-b66ed.firebaseapp.com",
+      projectId: "wordrun-b66ed",
+      storageBucket: "wordrun-b66ed.firebasestorage.app",
+      messagingSenderId: "438794618880",
+      appId: "1:438794618880:web:50b25d08ac7d7595afb0e5"
+    };
+    var readyResolve;
+    var api = { ready: new Promise(function (res) { readyResolve = res; }) };
+    Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js")
+    ]).then(function (mods) {
+      var appMod = mods[0], authMod = mods[1], fsMod = mods[2];
+      var app = appMod.initializeApp(firebaseConfig);
+      var auth = authMod.getAuth(app);
+      var db = fsMod.getFirestore(app);
+      function ensureAuth() {
+        return new Promise(function (resolve, reject) {
+          var unsub = authMod.onAuthStateChanged(auth, function (user) {
+            unsub();
+            if (user) { resolve(user); return; }
+            authMod.signInAnonymously(auth).then(function (cred) { resolve(cred.user); }).catch(reject);
+          }, reject);
+        });
+      }
+      api.watchGroup = function (groupId, cb) {
+        return ensureAuth().then(function () {
+          return fsMod.onSnapshot(fsMod.doc(db, "groups", groupId), function (snap) {
+            if (snap.exists()) cb(snap.data());
+          }, function (err) {
+            console.warn("[말씀런] 그룹 실시간 연결 오류(수동 동기화 코드는 계속 사용 가능):", err);
+          });
+        });
+      };
+      api.watchMember = function (groupId, memberId, cb) {
+        return ensureAuth().then(function () {
+          return fsMod.onSnapshot(fsMod.doc(db, "groups", groupId, "members", memberId), function (snap) {
+            if (snap.exists()) cb(snap.data());
+          }, function (err) {
+            console.warn("[말씀런] 조원 실시간 연결 오류(수동 동기화 코드는 계속 사용 가능):", err);
+          });
+        });
+      };
+      readyResolve(api);
+    }).catch(function (e) {
+      console.warn("[말씀런] Firebase 초기화 실패 — 오프라인/로컬 모드로 계속 진행합니다.", e);
+    });
+    return api;
+  })();
+</script>
 <script>
 (function () {
   "use strict";
@@ -507,7 +568,9 @@
       week: 1,
       dayIndex: 0,
       weekData: {},
-      themeSaved: null
+      themeSaved: null,
+      groupId: null,
+      memberId: null
     };
   }
 
@@ -531,6 +594,23 @@
   if (typeof state.week !== "number" || state.week < 1) state.week = 1;
   if (state.week > TOTAL_WEEKS) state.week = TOTAL_WEEKS;
   if (typeof state.dayIndex !== "number" || state.dayIndex < 0 || state.dayIndex > 6) state.dayIndex = 0;
+
+  // ---------- Firebase 페어링(조원별 등록 QR) ----------
+  // URL 쿼리에 g(groupId)·m(memberId)이 있으면(리더의 등록 QR을 스캔한 직후) 영구 저장하고
+  // 주소창에서 즉시 제거한다. 이미 저장돼 있으면 URL 쿼리가 없어도 그 값을 그대로 쓴다.
+  (function pairFromUrl() {
+    try {
+      var params = new URLSearchParams(location.search);
+      var g = params.get("g"), m = params.get("m");
+      if (g && m) {
+        state.groupId = g;
+        state.memberId = m;
+        save();
+        history.replaceState(null, "", location.pathname + location.hash);
+      }
+    } catch (e) {}
+  })();
+  var fbApi = null;
 
   function getWeekData(w) {
     var key = String(w);
@@ -575,15 +655,11 @@
   var resetArmed = false;
   var showSubmitForm = {}; // quizIdx -> true면 이미 제출했어도 재입력 폼을 보여줌
 
-  function renderOnboarding() {
-    if (state.name) {
-      onboardArea.style.display = "none";
-      mainArea.style.display = "";
-      return;
-    }
-    onboardArea.style.display = "";
-    mainArea.style.display = "none";
-    onboardArea.innerHTML = "";
+  // 기존(레거시) 이름 입력 카드 — 그대로 보존, 삭제하지 않음. (a) 이미 오늘 수업 등에서
+  // 시작한 기존 사용자(state.name이 이미 있음)에게는 전혀 노출되지 않고 그대로 본 화면으로
+  // 넘어간다(비파손 요구사항). (b) 완전 신규 기기인데 QR 페어링이 없는 경우에는 아래
+  // renderPairingNotice의 "이름으로 직접 시작" 토글을 통해서만 도달한다.
+  function renderNameEntryCard(container) {
     var card = document.createElement("div");
     card.className = "card onboard-card";
     var h2 = document.createElement("h2");
@@ -621,7 +697,64 @@
       renderAll();
     });
     card.appendChild(startBtn);
-    onboardArea.appendChild(card);
+    container.appendChild(card);
+  }
+
+  // 완전 최초 상태(이름도 없고 QR 페어링도 없음)일 때 우선 노출되는 안내 카드 — 리더에게
+  // 등록 QR을 보여달라고 요청하도록 안내한다. 대면 스캔이 어려운 등 예외 상황을 위해 기존
+  // 이름 입력 화면으로 넘어갈 수 있는 토글도 함께 둔다(레거시 경로 삭제 아님, 유지).
+  function renderPairingNotice(container) {
+    var card = document.createElement("div");
+    card.className = "card onboard-card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "리더에게 등록 QR을 요청하세요";
+    card.appendChild(h2);
+    var p = document.createElement("p");
+    p.className = "status-note";
+    p.style.marginTop = "0";
+    p.textContent = "조 리더 화면의 \"조원 관리\"에서 내 이름 옆 \"등록 QR 보기\"를 스캔하면, 그 뒤로는 이름·코드를 직접 입력하지 않아도 리더의 진행에 맞춰 화면이 자동으로 넘어가요. 이 등록은 21주 중 딱 한 번만 하면 돼요.";
+    card.appendChild(p);
+
+    var toggleBtn = document.createElement("button");
+    toggleBtn.className = "nav-btn";
+    toggleBtn.type = "button";
+    toggleBtn.textContent = "QR 없이 이름으로 직접 시작할게요";
+    toggleBtn.addEventListener("click", function () {
+      container.innerHTML = "";
+      renderNameEntryCard(container);
+    });
+    card.appendChild(toggleBtn);
+    container.appendChild(card);
+  }
+
+  function renderPairingLoading(container) {
+    var card = document.createElement("div");
+    card.className = "card onboard-card";
+    var h2 = document.createElement("h2");
+    h2.textContent = "조 리더와 연결하는 중이에요";
+    card.appendChild(h2);
+    var p = document.createElement("p");
+    p.className = "status-note";
+    p.style.marginTop = "0";
+    p.textContent = "잠시만 기다려 주세요. 연결이 끝나면 자동으로 이름이 채워지고 다음 화면으로 넘어가요.";
+    card.appendChild(p);
+    container.appendChild(card);
+  }
+
+  function renderOnboarding() {
+    if (state.name) {
+      onboardArea.style.display = "none";
+      mainArea.style.display = "";
+      return;
+    }
+    onboardArea.style.display = "";
+    mainArea.style.display = "none";
+    onboardArea.innerHTML = "";
+    if (state.groupId && state.memberId) {
+      renderPairingLoading(onboardArea);
+    } else {
+      renderPairingNotice(onboardArea);
+    }
   }
 
   function renderStatusBar() {
@@ -944,6 +1077,34 @@
     save();
   });
   if (state.themeSaved) document.documentElement.setAttribute("data-theme", state.themeSaved);
+
+  // Firebase 준비되는 즉시(페어링 정보가 있을 때만) 그룹·멤버 문서에 실시간 리스너를 건다.
+  // 두 값(week/dayIndex, verified) 중 하나라도 바뀌면 새로고침·코드 입력 없이 즉시 로컬
+  // state에 반영해 화면을 다시 그린다. 준비가 안 되거나 페어링이 없으면 조용히 아무 것도
+  // 하지 않음 — 기존 수동 동기화 코드 입력(#syncCodeInput)은 항상 그대로 동작한다.
+  if (window.WR21FB && window.WR21FB.ready) {
+    window.WR21FB.ready.then(function (fb) {
+      fbApi = fb;
+      if (!state.groupId || !state.memberId) return;
+      fb.watchGroup(state.groupId, function (data) {
+        var weekChanged = typeof data.week === "number" && data.week !== state.week;
+        if (typeof data.week === "number") state.week = data.week;
+        if (typeof data.dayIndex === "number") state.dayIndex = data.dayIndex;
+        if (weekChanged) showSubmitForm = {};
+        save();
+        renderAll();
+      });
+      fb.watchMember(state.groupId, state.memberId, function (data) {
+        var changed = false;
+        if (data.name && !state.name) { state.name = data.name; changed = true; }
+        if (typeof data.verified === "boolean" && typeof data.verifiedWeek === "number") {
+          var wd = getWeekData(data.verifiedWeek);
+          if (wd.verified !== data.verified) { wd.verified = data.verified; changed = true; }
+        }
+        if (changed) { save(); renderAll(); }
+      });
+    }).catch(function () {});
+  }
 
   renderAll();
 })();
