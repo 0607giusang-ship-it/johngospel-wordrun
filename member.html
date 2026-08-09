@@ -727,7 +727,9 @@
     container.appendChild(card);
   }
 
+  var pairingLoadingTimer = null;
   function renderPairingLoading(container) {
+    if (pairingLoadingTimer) { clearTimeout(pairingLoadingTimer); pairingLoadingTimer = null; }
     var card = document.createElement("div");
     card.className = "card onboard-card";
     var h2 = document.createElement("h2");
@@ -739,6 +741,23 @@
     p.textContent = "잠시만 기다려 주세요. 연결이 끝나면 자동으로 이름이 채워지고 다음 화면으로 넘어가요.";
     card.appendChild(p);
     container.appendChild(card);
+
+    // 익명인증 실패 등으로 연결이 끝내 안 되면 이 화면에 영원히 갇힐 수 있으므로, 9초 안에
+    // state.name이 채워지지 않으면 기존 "QR 없이 이름으로 직접 시작" 탈출 버튼을 붙여준다
+    // (renderPairingNotice의 toggleBtn과 동일 패턴 재사용 — 새 인프라 없음, reviewer 지적 반영).
+    pairingLoadingTimer = setTimeout(function () {
+      pairingLoadingTimer = null;
+      if (state.name) return; // 그 사이 정상 연결됐으면 아무 것도 안 함
+      var toggleBtn = document.createElement("button");
+      toggleBtn.className = "nav-btn";
+      toggleBtn.type = "button";
+      toggleBtn.textContent = "QR 없이 이름으로 직접 시작할게요";
+      toggleBtn.addEventListener("click", function () {
+        container.innerHTML = "";
+        renderNameEntryCard(container);
+      });
+      card.appendChild(toggleBtn);
+    }, 9000);
   }
 
   function renderOnboarding() {
