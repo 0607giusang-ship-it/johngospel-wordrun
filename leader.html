@@ -344,6 +344,44 @@
   }
   .qr-modal-card .qr-modal-actions { display: flex; gap: 8px; justify-content: center; }
 
+  .photo-thumb {
+    width: 44px; height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    flex: none;
+  }
+  .photo-thumb:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .photo-pending-note { font-size: 0.72rem; color: var(--gold); font-weight: 700; white-space: nowrap; }
+
+  .photo-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 8, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 25;
+  }
+  .photo-modal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+  .photo-modal-card h3 { margin: 0 0 12px; }
+  .photo-modal-card img {
+    max-width: 100%;
+    max-height: 65vh;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
   .settings-row { margin-bottom: 14px; }
   .settings-row label { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
   .settings-row .row-inline { display: flex; gap: 8px; }
@@ -495,6 +533,16 @@
     <div class="qr-modal-actions">
       <button class="nav-btn" id="qrModalCopyBtn" type="button">링크 복사</button>
       <button class="action-btn primary" id="qrModalCloseBtn" type="button">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="photo-modal-overlay" id="photoModalOverlay" style="display:none;">
+  <div class="photo-modal-card">
+    <h3 id="photoModalName"></h3>
+    <img id="photoModalImg" alt="필사 사진">
+    <div class="qr-modal-actions">
+      <button class="action-btn primary" id="photoModalCloseBtn" type="button">닫기</button>
     </div>
   </div>
 </div>
@@ -859,6 +907,7 @@
     window.WR21FB.ready.then(function (fb) {
       fbApi = fb;
       fb.setGroupState(state.groupId, { week: state.week, dayIndex: state.dayIndex }).catch(function () {});
+      state.members.forEach(function (m) { watchMemberPhoto(m.id); });
     }).catch(function () {});
   }
   function syncGroupToFirebase() {
@@ -994,6 +1043,40 @@
     if (e.target === qrModalOverlay) closeMemberQrModal();
   });
 
+  // ---------- 조원 필사 사진(월요일 인증확인 화면에 노출) ----------
+  // Firebase Storage는 이 프로젝트가 무료(Spark) 요금제라 활성화가 막혀 있어(유료 업그레이드
+  // 필요 — 결제는 오너가 직접 결정할 일), 조원이 Firestore 문서 필드에 압축해 올린
+  // base64 사진(member.html 쪽 참고)을 그대로 읽어와 썸네일·모달로 보여준다.
+  var photoModalOverlay = document.getElementById("photoModalOverlay");
+  var photoModalName = document.getElementById("photoModalName");
+  var photoModalImg = document.getElementById("photoModalImg");
+  var photoModalCloseBtn = document.getElementById("photoModalCloseBtn");
+  function openPhotoModal(dataUrl, name) {
+    photoModalName.textContent = name + " 님의 필사 사진";
+    photoModalImg.src = dataUrl;
+    photoModalOverlay.style.display = "flex";
+  }
+  function closePhotoModal() {
+    photoModalOverlay.style.display = "none";
+  }
+  photoModalCloseBtn.addEventListener("click", closePhotoModal);
+  photoModalOverlay.addEventListener("click", function (e) {
+    if (e.target === photoModalOverlay) closePhotoModal();
+  });
+
+  // memberId -> 최근 수신된 조원 Firestore 문서(photoDataUrl/photoWeek 포함). 월요일 화면이
+  // 떠 있을 때 새 사진이 도착하면 그 자리에서 바로 다시 그려 리더가 새로고침 없이 보게 한다.
+  var memberFbData = {};
+  var watchedMemberIds = {};
+  function watchMemberPhoto(memberId) {
+    if (!fbApi || watchedMemberIds[memberId]) return;
+    watchedMemberIds[memberId] = true;
+    fbApi.watchMember(state.groupId, memberId, function (data) {
+      memberFbData[memberId] = data;
+      if (state.dayIndex === 0) renderToday();
+    });
+  }
+
   function renderStatusBar() {
     weekLabel.textContent = state.week;
     chapterLabel.textContent = state.week;
@@ -1073,6 +1156,7 @@
     input.value = "";
     save();
     syncMemberCreateToFirebase(newMember);
+    watchMemberPhoto(newMember.id);
     renderAll();
   }
 
@@ -1103,7 +1187,7 @@
     var intro = document.createElement("p");
     intro.className = "status-note";
     intro.style.marginTop = "0";
-    intro.textContent = "요한복음 " + state.week + "장을 읽고 필사한 인증샷을 카톡으로 받으면, 해당 조원을 눌러 인증 완료로 표시하세요. 인증해야 화~토 퀴즈 채점이 열립니다.";
+    intro.textContent = "요한복음 " + state.week + "장을 읽고 필사한 사진을 조원이 앱에서 올리면 아래 썸네일로 바로 보여요. 사진을 눌러 확인한 뒤 해당 조원을 눌러 인증 완료로 표시하세요(카톡으로 따로 받은 경우 사진 없이 바로 인증해도 돼요). 인증해야 화~토 퀴즈 채점이 열립니다.";
     card.appendChild(intro);
 
     var wd = getWeekData(state.week);
@@ -1120,6 +1204,26 @@
         badgeM.className = "badge-complete";
         badgeM.textContent = "★ 완주";
         row.appendChild(badgeM);
+      }
+
+      var fbData = memberFbData[m.id];
+      var hasPhotoThisWeek = !!(fbData && fbData.photoWeek === state.week && fbData.photoDataUrl);
+      if (hasPhotoThisWeek) {
+        var thumb = document.createElement("img");
+        thumb.className = "photo-thumb";
+        thumb.src = fbData.photoDataUrl;
+        thumb.alt = m.name + " 필사 사진 (눌러서 크게 보기)";
+        thumb.tabIndex = 0;
+        thumb.addEventListener("click", function () { openPhotoModal(fbData.photoDataUrl, m.name); });
+        thumb.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPhotoModal(fbData.photoDataUrl, m.name); }
+        });
+        row.appendChild(thumb);
+      } else if (!wd.verified[m.id]) {
+        var pendingNote = document.createElement("span");
+        pendingNote.className = "photo-pending-note";
+        pendingNote.textContent = "사진 대기중";
+        row.appendChild(pendingNote);
       }
 
       var btn = document.createElement("button");

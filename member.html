@@ -268,6 +268,17 @@
   .week-summary-row .wd-status.done { color: var(--ok); font-weight: 600; }
 
   .onboard-card { max-width: 420px; margin: 0 auto; }
+
+  .photo-upload-wrap { margin-top: 10px; }
+  .photo-preview {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+  input[type="file"] { display: none; }
 </style>
 </head>
 <body>
@@ -370,6 +381,18 @@
           }, function (err) {
             console.warn("[말씀런] 조원 실시간 연결 오류(수동 동기화 코드는 계속 사용 가능):", err);
           });
+        });
+      };
+      // 필사 사진 제출 — 카톡 대신 앱 안에서 리더에게 바로 전달하기 위한 경로. Firebase
+      // Storage는 이 프로젝트가 무료(Spark) 요금제라 활성화가 막혀 있어(유료 업그레이드
+      // 필요), 대신 이미 쓰고 있는 Firestore 문서 필드에 압축된 base64 이미지를 직접 담는다
+      // (member.html의 compressImageFile이 Firestore 문서 1MiB 한도 안에 들어오도록 미리
+      // 리사이즈·압축해서 넘겨준다).
+      api.submitTranscriptionPhoto = function (groupId, memberId, week, dataUrl) {
+        return ensureAuth().then(function () {
+          return fsMod.setDoc(fsMod.doc(db, "groups", groupId, "members", memberId), {
+            photoDataUrl: dataUrl, photoWeek: week, photoSubmittedAt: fsMod.serverTimestamp()
+          }, { merge: true });
         });
       };
       readyResolve(api);
@@ -802,10 +825,14 @@
     h2.textContent = "월요일 · 읽기와 필사";
     card.appendChild(h2);
 
+    var paired = !!(state.groupId && state.memberId);
+
     var intro = document.createElement("p");
     intro.className = "status-note";
     intro.style.marginTop = "0";
-    intro.textContent = "오늘은 요한복음 " + state.week + "장을 읽고 필사하는 날이에요. 필사한 내용을 사진으로 찍어 인증샷을 카톡으로 리더에게 보내주세요.";
+    intro.textContent = paired
+      ? "오늘은 요한복음 " + state.week + "장을 읽고 필사하는 날이에요. 필사한 내용을 사진으로 찍어 아래에서 바로 제출하면 리더에게 전달돼요."
+      : "오늘은 요한복음 " + state.week + "장을 읽고 필사하는 날이에요. 필사한 내용을 사진으로 찍어 인증샷을 카톡으로 리더에게 보내주세요.";
     card.appendChild(intro);
 
     var badge = document.createElement("p");
@@ -814,14 +841,137 @@
     badge.textContent = "이번 주 인증 완료 ✓";
     card.appendChild(badge);
 
+    if (paired) {
+      renderPhotoUpload(card, wd);
+    }
+
     var helper = document.createElement("p");
     helper.className = "disclaimer";
-    helper.textContent = wd.verified
-      ? "리더가 보내준 동기화 코드로 인증이 확인됐어요. 위쪽 코드 입력칸에 그날 코드를 붙여넣으면 화~토 퀴즈로 이동해요."
-      : "필사 인증샷을 카톡으로 보내면, 리더가 확인 후 동기화 코드를 보내줘요. 그 코드를 위쪽 코드 입력칸에 붙여넣으면 화~토 퀴즈로 자동 이동해요 — 리더의 확인을 기다리는 중이에요. 이 화면에서 직접 누를 건 없어요.";
+    if (wd.verified) {
+      helper.textContent = "리더가 인증을 확인했어요. 자동으로 연결된 경우 곧 화~토 퀴즈로 넘어가요 — 안 넘어가면 리더가 보내준 동기화 코드를 위쪽 코드 입력칸에 붙여넣어 주세요.";
+    } else if (paired) {
+      helper.textContent = wd.photoDataUrl
+        ? "사진을 리더에게 보냈어요. 리더가 확인하면 자동으로 화~토 퀴즈로 넘어가요 — 기다리는 중이에요."
+        : "위에서 필사 사진을 올리면 리더에게 바로 전달돼요. 카톡으로 따로 보낼 필요 없어요.";
+    } else {
+      helper.textContent = "필사 인증샷을 카톡으로 보내면, 리더가 확인 후 동기화 코드를 보내줘요. 그 코드를 위쪽 코드 입력칸에 붙여넣으면 화~토 퀴즈로 자동 이동해요 — 리더의 확인을 기다리는 중이에요.";
+    }
     card.appendChild(helper);
 
     panelToday.appendChild(card);
+  }
+
+  // ---------- 필사 사진 업로드 ----------
+  // 사진을 곧바로 서버(Firestore)에 올리지 않고, 캔버스로 리사이즈·재압축(최대 1280px,
+  // JPEG 품질 단계적 하향)해 문서 1개당 1MiB인 Firestore 한도 안에 항상 들어오도록 만든
+  // 뒤에 전송한다. Firebase Storage를 쓰지 않는 이유는 이 프로젝트가 현재 무료(Spark)
+  // 요금제이고 Storage 활성화에는 유료 업그레이드(결제수단 등록)가 필요하기 때문 — 결제는
+  // 오너가 직접 결정할 일이라 이 세션에서는 대신 Firestore 문서 필드에 담는 방식을 택했다.
+  var photoUploadBusy = false;
+  function compressImageFile(file, cb) {
+    var MAX_DIM = 1280;
+    var QUALITY_STEPS = [0.72, 0.55, 0.4];
+    var MAX_BYTES = 700000; // base64 인코딩 후에도 Firestore 1MiB 문서 한도에 여유 있게
+
+    var reader = new FileReader();
+    reader.onerror = function () { cb(new Error("read failed")); };
+    reader.onload = function () {
+      var img = new Image();
+      img.onerror = function () { cb(new Error("image load failed")); };
+      img.onload = function () {
+        var w = img.naturalWidth || 1, h = img.naturalHeight || 1;
+        var scale = Math.min(1, MAX_DIM / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement("canvas");
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, cw, ch);
+        var qi = 0;
+        function tryQuality() {
+          var q = QUALITY_STEPS[qi];
+          var dataUrl;
+          try { dataUrl = canvas.toDataURL("image/jpeg", q); } catch (e) { cb(e); return; }
+          var approxBytes = Math.round(dataUrl.length * 0.75);
+          if (approxBytes > MAX_BYTES && qi < QUALITY_STEPS.length - 1) {
+            qi++;
+            tryQuality();
+            return;
+          }
+          cb(null, dataUrl);
+        }
+        tryQuality();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderPhotoUpload(container, wd) {
+    var wrap = document.createElement("div");
+    wrap.className = "photo-upload-wrap";
+
+    if (wd.photoDataUrl) {
+      var preview = document.createElement("img");
+      preview.className = "photo-preview";
+      preview.src = wd.photoDataUrl;
+      preview.alt = "제출한 필사 사진";
+      wrap.appendChild(preview);
+    }
+
+    if (!wd.verified) {
+      var fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.setAttribute("capture", "environment");
+
+      var pickBtn = document.createElement("button");
+      pickBtn.className = "action-btn primary";
+      pickBtn.type = "button";
+      pickBtn.textContent = wd.photoDataUrl ? "사진 다시 찍기/올리기" : "필사 사진 촬영·올리기";
+      pickBtn.addEventListener("click", function () { fileInput.click(); });
+
+      var statusP = document.createElement("p");
+      statusP.className = "status-note";
+      statusP.style.marginTop = "8px";
+      statusP.textContent = wd.photoSyncPending ? "전송 준비 중이에요..." : "";
+
+      fileInput.addEventListener("change", function () {
+        var file = fileInput.files && fileInput.files[0];
+        fileInput.value = "";
+        if (!file || photoUploadBusy) return;
+        photoUploadBusy = true;
+        statusP.textContent = "사진 처리하는 중...";
+        compressImageFile(file, function (err, dataUrl) {
+          if (err || !dataUrl) {
+            photoUploadBusy = false;
+            statusP.textContent = "사진을 처리하지 못했어요. 다시 시도해 주세요.";
+            return;
+          }
+          wd.photoDataUrl = dataUrl;
+          wd.photoSubmittedAt = new Date().toISOString();
+          save();
+          statusP.textContent = "리더에게 전송하는 중...";
+          var ready = (window.WR21FB && window.WR21FB.ready) || Promise.reject(new Error("no fb"));
+          ready.then(function (fb) {
+            return fb.submitTranscriptionPhoto(state.groupId, state.memberId, state.week, dataUrl);
+          }).then(function () {
+            photoUploadBusy = false;
+            renderToday();
+          }).catch(function () {
+            photoUploadBusy = false;
+            statusP.textContent = "전송에 실패했어요(네트워크를 확인해 주세요). 버튼을 다시 눌러 재시도할 수 있어요.";
+          });
+        });
+      });
+
+      wrap.appendChild(pickBtn);
+      wrap.appendChild(fileInput);
+      wrap.appendChild(statusP);
+    }
+
+    container.appendChild(wrap);
   }
 
   function renderQuizDay() {
