@@ -950,8 +950,11 @@
 
   // 조원이 앱으로 제출한 정답을 QUIZ_DATA의 정답과 비교해 자동판정 — 공백·쉼표 표기 차이만
   // 흡수하고 나머지는 정확히 일치해야 "정답"으로 판정한다(모호하면 리더가 직접 재판정).
+  // 조원 입력창은 여러 빈칸용 구분 형식(쉼표 등)을 안내하지 않으므로, 쉼표·공백·마침표·가운뎃점
+  // 등 구분기호는 전부 무시하고 한글·영문·숫자 내용만 이어붙여 비교한다("생명, 생명, 어둠"과
+  // "생명 생명 어둠"을 같은 정답으로 인정) — reviewer-claude-1 지적(다중 빈칸 정답 7/105건 오탐) 반영.
   function normalizeQuizAnswer(s) {
-    return String(s || "").replace(/[，、]/g, ",").replace(/\s+/g, "");
+    return String(s || "").replace(/[^가-힣a-zA-Z0-9]/g, "");
   }
 
   function autoJudgeQuiz(week, quizIdx, submittedAnswer) {
