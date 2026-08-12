@@ -252,6 +252,22 @@
   .grade-btn.incorrect[data-active="true"] { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
   .grade-btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .grade-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+  .ai-judge-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--bg-soft);
+    font-size: 0.78rem;
+  }
+  .ai-judge-text { color: var(--ink-soft); overflow-wrap: anywhere; }
+  .ai-judge-text b.judge-correct { color: var(--ok); }
+  .ai-judge-text b.judge-incorrect { color: var(--danger); }
+  .ai-confirm-btn { padding: 6px 12px; font-size: 0.76rem; }
+  .ai-graded-note { font-size: 0.72rem; color: var(--ink-soft); }
   .locked-note { font-size: 0.72rem; color: var(--ink-soft); }
 
   .kakao-box {
@@ -932,6 +948,18 @@
     return wd;
   }
 
+  // 조원이 앱으로 제출한 정답을 QUIZ_DATA의 정답과 비교해 자동판정 — 공백·쉼표 표기 차이만
+  // 흡수하고 나머지는 정확히 일치해야 "정답"으로 판정한다(모호하면 리더가 직접 재판정).
+  function normalizeQuizAnswer(s) {
+    return String(s || "").replace(/[，、]/g, ",").replace(/\s+/g, "");
+  }
+
+  function autoJudgeQuiz(week, quizIdx, submittedAnswer) {
+    var item = QUIZ_DATA[week] && QUIZ_DATA[week][quizIdx];
+    if (!item || !item.answer || !submittedAnswer) return null;
+    return normalizeQuizAnswer(item.answer) === normalizeQuizAnswer(submittedAnswer) ? "correct" : "incorrect";
+  }
+
   function couponsFor(w, memberId) {
     var wd = getWeekData(w);
     var q = wd.quiz[memberId];
@@ -1073,7 +1101,7 @@
     watchedMemberIds[memberId] = true;
     fbApi.watchMember(state.groupId, memberId, function (data) {
       memberFbData[memberId] = data;
-      if (state.dayIndex === 0) renderToday();
+      if (state.dayIndex >= 0 && state.dayIndex <= 5) renderToday();
     });
   }
 
@@ -1356,11 +1384,45 @@
         row.appendChild(lockedNote);
       }
 
-      var group = document.createElement("div");
-      group.className = "grade-group";
-
       if (!wd.quiz[m.id]) wd.quiz[m.id] = {};
       var current = wd.quiz[m.id][quizIdx];
+
+      var fbData = memberFbData[m.id];
+      var qSub = fbData && fbData.quizAnswers && fbData.quizAnswers["w" + state.week + "q" + quizIdx];
+      if (verified && item && qSub && qSub.answer) {
+        var suggestion = autoJudgeQuiz(state.week, quizIdx, qSub.answer);
+        var aiRow = document.createElement("div");
+        aiRow.className = "ai-judge-row";
+        var aiText = document.createElement("span");
+        aiText.className = "ai-judge-text";
+        aiText.appendChild(document.createTextNode("제출: “" + qSub.answer + "” · 자동판정: "));
+        var aiVerdict = document.createElement("b");
+        aiVerdict.className = suggestion === "correct" ? "judge-correct" : "judge-incorrect";
+        aiVerdict.textContent = suggestion === "correct" ? "정답" : "오답";
+        aiText.appendChild(aiVerdict);
+        aiRow.appendChild(aiText);
+        if (current == null) {
+          var confirmBtn = document.createElement("button");
+          confirmBtn.className = "action-btn primary ai-confirm-btn";
+          confirmBtn.type = "button";
+          confirmBtn.textContent = "확인(적립)";
+          confirmBtn.addEventListener("click", function () {
+            wd.quiz[m.id][quizIdx] = suggestion;
+            save();
+            renderToday();
+          });
+          aiRow.appendChild(confirmBtn);
+        } else {
+          var gradedNote = document.createElement("span");
+          gradedNote.className = "ai-graded-note";
+          gradedNote.textContent = "채점 완료 (" + (current === "correct" ? "정답" : "오답") + ") — 아래 버튼으로 재판정 가능";
+          aiRow.appendChild(gradedNote);
+        }
+        row.appendChild(aiRow);
+      }
+
+      var group = document.createElement("div");
+      group.className = "grade-group";
 
       var okBtn = document.createElement("button");
       okBtn.className = "grade-btn correct";

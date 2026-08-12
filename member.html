@@ -395,6 +395,13 @@
           }, { merge: true });
         });
       };
+      api.submitQuizAnswer = function (groupId, memberId, week, quizIdx, answerText) {
+        return ensureAuth().then(function () {
+          var payload = { quizAnswers: {} };
+          payload.quizAnswers["w" + week + "q" + quizIdx] = { answer: answerText, submittedAt: fsMod.serverTimestamp() };
+          return fsMod.setDoc(fsMod.doc(db, "groups", groupId, "members", memberId), payload, { merge: true });
+        });
+      };
       readyResolve(api);
     }).catch(function (e) {
       console.warn("[말씀런] Firebase 초기화 실패 — 오프라인/로컬 모드로 계속 진행합니다.", e);
@@ -1065,13 +1072,20 @@
         wd.submissions[quizIdx] = { answer: v, message: msg, submittedAt: Date.now ? new Date().toISOString() : "" };
         showSubmitForm[quizIdx] = false;
         save();
+        if (state.groupId && state.memberId && window.WR21FB) {
+          window.WR21FB.ready.then(function (fb) {
+            return fb.submitQuizAnswer(state.groupId, state.memberId, state.week, quizIdx, v);
+          }).catch(function () {});
+        }
         renderToday();
       });
       card.appendChild(submitBtn);
 
       var disc = document.createElement("p");
       disc.className = "disclaimer";
-      disc.textContent = "제출하면 리더에게 보낼 문자가 만들어져요. 카톡으로 보내면 리더가 그걸 보고 채점하고 쿠폰을 적립해요 — 이 화면의 '제출완료' 표시는 내 개인 진행 기록일 뿐, 공식 채점이 아니에요.";
+      disc.textContent = state.groupId && state.memberId
+        ? "제출하면 리더 앱에 바로 전달돼요. 리더가 자동채점 결과를 확인하고 최종 확인을 누르면 쿠폰이 적립돼요."
+        : "제출하면 리더에게 보낼 문자가 만들어져요. 카톡으로 보내면 리더가 그걸 보고 채점하고 쿠폰을 적립해요 — 이 화면의 '제출완료' 표시는 내 개인 진행 기록일 뿐, 공식 채점이 아니에요.";
       card.appendChild(disc);
     }
 
