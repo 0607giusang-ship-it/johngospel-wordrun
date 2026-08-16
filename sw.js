@@ -20,6 +20,10 @@
 var CACHE_VERSION = "wr21-2026-08-17-1";
 var CACHE_NAME = "wordrun-" + CACHE_VERSION;
 
+// HTML 을 네트워크에서 기다려 주는 시간. 이 시간을 넘기면 캐시 사본으로 먼저 화면을 띄운다
+// (느린 회선에서 흰 화면이 오래 남는 것을 막는다).
+var NETWORK_TIMEOUT_MS = 3500;
+
 // 오프라인 폴백용 최소 자산. 하나가 실패해도 install 이 통째로 깨지지 않도록 개별 catch 한다.
 var PRECACHE_URLS = [
   "./",
@@ -62,26 +66,53 @@ self.addEventListener("activate", function (event) {
   );
 });
 
-function networkFirst(request, url) {
+function offlineResponse() {
+  // 캐시에도 없고 네트워크도 안 될 때. 여기서 index.html(랜딩)을 대신 내주면 안 된다 —
+  // 조원이 member.html 을 열었는데 링크 4개짜리 랜딩이 200 으로 뜨는 "조용히 엉뚱한 화면"이
+  // 되기 때문이다. 차라리 정직하게 오프라인이라고 알린다.
+  return new Response("오프라인 상태예요. 인터넷에 연결한 뒤 다시 열어 주세요.", {
+    status: 503,
+    headers: { "Content-Type": "text/plain; charset=utf-8" }
+  });
+}
+
+function networkFirst(event, request, url) {
   // 내비게이션 요청은 mode 가 "navigate" 라서 new Request(request, ...) 로 복제할 수 없다.
-  // 그래서 URL 문자열로 새로 요청한다. cache:"no-store" 로 브라우저 HTTP 캐시까지 우회해
-  // 항상 서버의 최신 HTML 을 먼저 시도한다.
-  return fetch(url.href, { cache: "no-store", credentials: "same-origin" }).then(function (response) {
-    if (response && response.ok) {
-      var copy = response.clone();
-      caches.open(CACHE_NAME).then(function (cache) { cache.put(request, copy); }).catch(function () {});
-    }
-    return response;
-  }).catch(function () {
-    return caches.match(request).then(function (cached) {
+  // 그래서 URL 문자열로 새로 요청한다.
+  // cache:"no-cache" — 항상 서버에 물어보되 ETag/If-Modified-Since 는 살려 둔다. no-store 로
+  // 막아버리면 안 바뀐 leader.html(약 96KB)·member.html(약 68KB)을 열 때마다 통째로 다시
+  // 받는다. no-cache 면 안 바뀐 경우 304 로 끝나 저속망에서 크게 이득이다.
+  var network = fetch(url.href, { cache: "no-cache", credentials: "same-origin" })
+    .then(function (response) {
+      if (response && response.ok) {
+        var copy = response.clone();
+        // ★캐시 키에서 쿼리를 뗀다. 조원 링크는 member.html?g=..&m=.. 처럼 사람마다 다른
+        // 쿼리를 달고 오는데, 그대로 키로 쓰면 조원 수만큼 같은 HTML 사본이 쌓인다.
+        caches.open(CACHE_NAME).then(function (cache) {
+          cache.put(url.origin + url.pathname, copy);
+        }).catch(function () {});
+      }
+      return response;
+    });
+
+  // 네트워크가 끊긴 경우보다 **느린 경우**(모바일 데이터·교회 와이파이)가 훨씬 흔하다.
+  // 거부될 때까지 기다리면 그동안 흰 화면만 보이므로, 제한 시간을 넘기면 캐시 사본으로
+  // 먼저 화면을 띄운다. 네트워크 요청은 취소하지 않고 계속 살려 둬서(waitUntil) 늦게라도
+  // 응답이 오면 위 then 이 캐시를 갱신한다 → 다음에 열 때 최신본이 나온다.
+  var settled = network.catch(function () { return null; });
+  event.waitUntil(settled);
+
+  var timeout = new Promise(function (resolve) {
+    setTimeout(function () { resolve(null); }, NETWORK_TIMEOUT_MS);
+  });
+
+  return Promise.race([settled, timeout]).then(function (winner) {
+    if (winner) return winner;
+    // ignoreSearch — 프리캐시 키에는 쿼리가 없으므로 ?g=..&m=.. 가 붙은 요청도 맞물리게 한다.
+    // 이게 없으면 QR 로 들어온 조원의 폴백 조회가 항상 빗나간다.
+    return caches.match(request, { ignoreSearch: true }).then(function (cached) {
       if (cached) return cached;
-      return caches.match("index.html").then(function (fallback) {
-        if (fallback) return fallback;
-        return new Response("오프라인 상태예요. 인터넷에 연결한 뒤 다시 열어 주세요.", {
-          status: 503,
-          headers: { "Content-Type": "text/plain; charset=utf-8" }
-        });
-      });
+      return settled.then(function (late) { return late || offlineResponse(); });
     });
   });
 }
@@ -123,7 +154,7 @@ self.addEventListener("fetch", function (event) {
     url.pathname.charAt(url.pathname.length - 1) === "/";
 
   if (isHtml) {
-    event.respondWith(networkFirst(request, url));
+    event.respondWith(networkFirst(event, request, url));
   } else {
     event.respondWith(cacheFirstRevalidate(request));
   }
