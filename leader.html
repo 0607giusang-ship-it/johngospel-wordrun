@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>요한복음 21주 말씀런</title>
+
+<!-- 홈 화면에 추가(설치) 경로 — 이게 없으면 기기·브라우저마다 "설치하기"가 제각각으로
+     동작하거나 아예 안 뜬다(아이콘 없음·standalone 미지원). 파일명·URL 은 QR 이 그대로
+     인코딩하고 있으므로 절대 바꾸지 않는다. -->
+<link rel="manifest" href="manifest-leader.json">
+<meta name="theme-color" content="#1f3b57">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="말씀런 리더">
+<link rel="apple-touch-icon" href="icons/leader-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/leader-192.png">
+
 <style>
   :root {
     --bg: #f5efe1;
@@ -467,10 +480,155 @@
   .history .time { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 0.72rem; margin-left: 6px; }
 
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* 카카오톡 등 인앱 브라우저 안내 배너 — 감지됐을 때만 노출된다. 기존 상태바·탭 흐름에는
+     전혀 손대지 않고 그 위에 얹기만 한다. 우측 상단 고정 테마 토글과 겹치지 않게 오른쪽
+     여백을 크게 잡았다. */
+  .inapp-banner {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 14px;
+    padding: 12px 92px 12px 14px;
+    background: var(--gold-soft);
+    border: 1px solid var(--gold);
+    border-radius: 14px;
+    color: var(--ink);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+  .inapp-banner .inapp-title {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+  :root[data-theme="dark"] .inapp-banner .inapp-title { color: var(--ring); }
+  .inapp-banner .inapp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .inapp-banner button {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .inapp-banner button.primary { background: var(--navy); border-color: var(--navy); color: var(--card); }
+  .inapp-banner button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .inapp-banner .inapp-note { margin: 8px 0 0; font-size: 0.76rem; color: var(--ink-soft); }
 </style>
 </head>
 <body>
 <button class="theme-toggle" id="themeToggle" type="button" aria-label="테마 전환">라이트 / 다크</button>
+
+<!-- 카카오톡 등 인앱 브라우저 안내 — 기본은 숨김이고, 아래 스크립트가 userAgent 로 감지했을
+     때만 보여준다. 기존 DOM(상태바·탭·패널)은 그대로 두고 위에 얹기만 한다. -->
+<div class="inapp-banner" id="inappBanner" style="display:none;" role="status">
+  <span class="inapp-title">잠깐만요</span>
+  <span id="inappBannerText"></span>
+  <div class="inapp-actions">
+    <button class="primary" id="inappOpenBtn" type="button" style="display:none;">다른 브라우저로 열기</button>
+    <button id="inappCopyBtn" type="button">링크 복사</button>
+  </div>
+  <p class="inapp-note" id="inappNote"></p>
+</div>
+
+<script>
+  // 인앱 브라우저(카카오톡·네이버·인스타 등) 감지 안내.
+  // 이 앱 주소는 카톡으로 공유될 가능성이 높은데, 카카오톡 인앱브라우저는 제조사별 WebView
+  // 차이 때문에 "홈 화면에 추가"가 기종마다 다르게 실패한다. 감지되면 기본 브라우저로
+  // 빠져나갈 수단을 준다.
+  (function () {
+    "use strict";
+
+    // 현재 주소를 그대로 붙잡아 둔다(복사·외부브라우저 전달용).
+    var shareUrl = location.href;
+
+    var ua = navigator.userAgent || "";
+    var isKakao = /KAKAOTALK/i.test(ua);
+    var isOtherInApp = /(NAVER\(inapp|DaumApps|Instagram|FBAN|FBAV|FB_IAB|Line\/|everytimeApp|WhaleOn)/i.test(ua);
+    if (!isKakao && !isOtherInApp) return;
+
+    var banner = document.getElementById("inappBanner");
+    var textEl = document.getElementById("inappBannerText");
+    var noteEl = document.getElementById("inappNote");
+    var openBtn = document.getElementById("inappOpenBtn");
+    var copyBtn = document.getElementById("inappCopyBtn");
+    if (!banner || !textEl || !noteEl || !openBtn || !copyBtn) return;
+
+    if (isKakao) {
+      textEl.textContent = "카카오톡 안에서 열린 브라우저예요. 여기서는 앱 설치(홈 화면에 추가)와 QR·사진 관련 기능이 휴대폰 기종에 따라 막힐 수 있어요.";
+      noteEl.textContent = "버튼이 안 되면 오른쪽 위 ⋯ 메뉴를 눌러 '다른 브라우저로 열기'를 선택해 주세요.";
+      openBtn.style.display = "";
+      openBtn.addEventListener("click", function () {
+        location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(shareUrl);
+      });
+    } else {
+      textEl.textContent = "다른 앱 안의 간이 브라우저로 열렸어요. 여기서는 앱 설치(홈 화면에 추가)와 QR·사진 관련 기능이 막힐 수 있어요.";
+      noteEl.textContent = "'링크 복사'를 누른 뒤 크롬·사파리 같은 기본 브라우저 주소창에 붙여넣어 주세요.";
+    }
+
+    function copyLink(text, onDone) {
+      function fallback() {
+        try {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          onDone(true);
+        } catch (e) { onDone(false); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { onDone(true); }, fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    copyBtn.addEventListener("click", function () {
+      copyLink(shareUrl, function (ok) {
+        copyBtn.textContent = ok ? "복사됐어요!" : "복사 실패";
+        setTimeout(function () { copyBtn.textContent = "링크 복사"; }, 1800);
+      });
+    });
+
+    banner.style.display = "";
+  })();
+</script>
+
+<script>
+  // 서비스워커 등록 — 홈 화면에 추가한 사람이 다음에 열 때 자동으로 최신 버전을 받게 한다.
+  // 갱신 전략(버전 캐시·skipWaiting·HTML network-first)은 sw.js 머리말 참고.
+  (function () {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.protocol !== "https:" && location.hostname !== "localhost") return;
+
+    // 페이지 진입 시점에 이미 워커가 이 페이지를 제어하고 있었는지 기록해 둔다. 최초 설치
+    // (clients.claim)로 발생하는 controllerchange 에서 불필요하게 새로고침하지 않기 위함.
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js", { scope: "./", updateViaCache: "none" })
+        .then(function (reg) { try { reg.update(); } catch (e) {} })
+        .catch(function () {});
+    });
+  })();
+</script>
 
 <div class="page">
   <p class="eyebrow">필사 × 읽기 소그룹 게임 · 리더용</p>

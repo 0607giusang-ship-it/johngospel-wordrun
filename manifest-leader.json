@@ -1,0 +1,20 @@
+{
+  "id": "wordrun-leader",
+  "name": "요한복음 21주 말씀런 · 리더",
+  "short_name": "말씀런 리더",
+  "description": "요한복음 21주 필사 × 읽기 소그룹 게임 — 조 리더용 진행·채점·쿠폰 관리",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "leader.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5efe1",
+  "theme_color": "#1f3b57",
+  "icons": [
+    { "src": "icons/leader-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/leader-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/leader-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/leader-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

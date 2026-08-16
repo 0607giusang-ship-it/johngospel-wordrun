@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>요한복음 21주 말씀런 · 조원용</title>
+<!-- 홈 화면에 추가(설치) 경로 — 이게 없으면 기기·브라우저마다 "설치하기"가 제각각으로
+     동작하거나 아예 안 뜬다(아이콘 없음·standalone 미지원). 파일명·URL 은 QR 이 그대로
+     인코딩하고 있으므로 절대 바꾸지 않는다. -->
+<link rel="manifest" href="manifest-member.json">
+<meta name="theme-color" content="#b9862f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="말씀런 조원">
+<link rel="apple-touch-icon" href="icons/member-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/member-192.png">
+
 <style>
   :root {
     --bg: #f5efe1;
@@ -279,10 +291,158 @@
     margin-bottom: 10px;
   }
   input[type="file"] { display: none; }
+
+  /* 카카오톡 등 인앱 브라우저 안내 배너 — 감지됐을 때만 노출된다. 기존 온보딩·상태바 흐름에는
+     전혀 손대지 않고 그 위에 얹기만 한다. 우측 상단 고정 테마 토글과 겹치지 않게 오른쪽
+     여백을 크게 잡았다. */
+  .inapp-banner {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto 14px;
+    padding: 12px 92px 12px 14px;
+    background: var(--gold-soft);
+    border: 1px solid var(--gold);
+    border-radius: 14px;
+    color: var(--ink);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+  .inapp-banner .inapp-title {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+  :root[data-theme="dark"] .inapp-banner .inapp-title { color: var(--ring); }
+  .inapp-banner .inapp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .inapp-banner button {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .inapp-banner button.primary { background: var(--navy); border-color: var(--navy); color: var(--card); }
+  .inapp-banner button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .inapp-banner .inapp-note { margin: 8px 0 0; font-size: 0.76rem; color: var(--ink-soft); }
 </style>
 </head>
 <body>
 <button class="theme-toggle" id="themeToggle" type="button" aria-label="테마 전환">라이트 / 다크</button>
+
+<!-- 카카오톡 등 인앱 브라우저 안내 — 기본은 숨김이고, 아래 스크립트가 userAgent 로 감지했을
+     때만 보여준다. 기존 DOM(온보딩·상태바·탭)은 그대로 두고 위에 얹기만 한다. -->
+<div class="inapp-banner" id="inappBanner" style="display:none;" role="status">
+  <span class="inapp-title">잠깐만요</span>
+  <span id="inappBannerText"></span>
+  <div class="inapp-actions">
+    <button class="primary" id="inappOpenBtn" type="button" style="display:none;">다른 브라우저로 열기</button>
+    <button id="inappCopyBtn" type="button">링크 복사</button>
+  </div>
+  <p class="inapp-note" id="inappNote"></p>
+</div>
+
+<script>
+  // 인앱 브라우저(카카오톡·네이버·인스타 등) 감지 안내.
+  // 이 앱 주소는 카톡으로 공유될 가능성이 높은데, 카카오톡 인앱브라우저는 제조사별 WebView
+  // 차이 때문에 "홈 화면에 추가"와 파일 선택(사진 올리기)이 기종마다 다르게 실패한다.
+  // 감지되면 기본 브라우저로 빠져나갈 수단을 준다.
+  (function () {
+    "use strict";
+
+    // ★이 스크립트는 body 맨 위에서 실행된다 = 아래 메인 스크립트의 pairFromUrl 이
+    //   ?g=&m= 를 주소창에서 지우기 **전**이다. 그래서 지금 붙잡아 두는 shareUrl 에는
+    //   QR 페어링 파라미터가 그대로 살아 있다 — 복사·외부브라우저 전달에는 반드시 이 값을
+    //   써야 다른 브라우저에서 열어도 페어링이 유지된다.
+    var shareUrl = location.href;
+
+    var ua = navigator.userAgent || "";
+    var isKakao = /KAKAOTALK/i.test(ua);
+    var isOtherInApp = /(NAVER\(inapp|DaumApps|Instagram|FBAN|FBAV|FB_IAB|Line\/|everytimeApp|WhaleOn)/i.test(ua);
+    if (!isKakao && !isOtherInApp) return;
+
+    var banner = document.getElementById("inappBanner");
+    var textEl = document.getElementById("inappBannerText");
+    var noteEl = document.getElementById("inappNote");
+    var openBtn = document.getElementById("inappOpenBtn");
+    var copyBtn = document.getElementById("inappCopyBtn");
+    if (!banner || !textEl || !noteEl || !openBtn || !copyBtn) return;
+
+    if (isKakao) {
+      textEl.textContent = "카카오톡 안에서 열린 브라우저예요. 여기서는 앱 설치(홈 화면에 추가)와 필사 사진 올리기가 휴대폰 기종에 따라 막힐 수 있어요.";
+      noteEl.textContent = "버튼이 안 되면 오른쪽 위 ⋯ 메뉴를 눌러 '다른 브라우저로 열기'를 선택해 주세요.";
+      openBtn.style.display = "";
+      openBtn.addEventListener("click", function () {
+        location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(shareUrl);
+      });
+    } else {
+      textEl.textContent = "다른 앱 안의 간이 브라우저로 열렸어요. 여기서는 앱 설치(홈 화면에 추가)와 사진 올리기가 막힐 수 있어요.";
+      noteEl.textContent = "'링크 복사'를 누른 뒤 크롬·사파리 같은 기본 브라우저 주소창에 붙여넣어 주세요.";
+    }
+
+    function copyLink(text, onDone) {
+      function fallback() {
+        try {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          onDone(true);
+        } catch (e) { onDone(false); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { onDone(true); }, fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    copyBtn.addEventListener("click", function () {
+      copyLink(shareUrl, function (ok) {
+        copyBtn.textContent = ok ? "복사됐어요!" : "복사 실패";
+        setTimeout(function () { copyBtn.textContent = "링크 복사"; }, 1800);
+      });
+    });
+
+    banner.style.display = "";
+  })();
+</script>
+
+<script>
+  // 서비스워커 등록 — 홈 화면에 추가한 사람이 다음에 열 때 자동으로 최신 버전을 받게 한다.
+  // 갱신 전략(버전 캐시·skipWaiting·HTML network-first)은 sw.js 머리말 참고.
+  (function () {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.protocol !== "https:" && location.hostname !== "localhost") return;
+
+    // 페이지 진입 시점에 이미 워커가 이 페이지를 제어하고 있었는지 기록해 둔다. 최초 설치
+    // (clients.claim)로 발생하는 controllerchange 에서 불필요하게 새로고침하지 않기 위함.
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js", { scope: "./", updateViaCache: "none" })
+        .then(function (reg) { try { reg.update(); } catch (e) {} })
+        .catch(function () {});
+    });
+  })();
+</script>
 
 <div class="page">
   <p class="eyebrow"><span class="member-badge">조원용</span>필사 × 읽기 소그룹 게임</p>
@@ -931,7 +1091,11 @@
       var fileInput = document.createElement("input");
       fileInput.type = "file";
       fileInput.accept = "image/*";
-      fileInput.setAttribute("capture", "environment");
+      // capture="environment" 를 걸지 않는다(예전에는 걸려 있었음). capture 가 붙으면 안드로이드는
+      // 카메라 앱을 곧바로 띄우고 **갤러리에서 고르기를 아예 없앤다**(MDN/web.dev 명시). 그래서
+      // 이미 찍어 둔 필사 사진을 못 올리고, 카카오톡 인앱브라우저처럼 카메라 권한이 제한된
+      // WebView 에서는 파일 선택 자체가 실패했다. accept="image/*" 만 두면 OS 기본 선택기가
+      // 떠서 카메라·갤러리 둘 다 고를 수 있다.
 
       var pickBtn = document.createElement("button");
       pickBtn.className = "action-btn primary";

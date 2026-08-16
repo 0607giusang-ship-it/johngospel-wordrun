@@ -1,0 +1,20 @@
+{
+  "id": "wordrun-member",
+  "name": "요한복음 21주 말씀런 · 조원",
+  "short_name": "말씀런 조원",
+  "description": "요한복음 21주 필사 × 읽기 소그룹 게임 — 조원용 인증·퀴즈",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "member.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5efe1",
+  "theme_color": "#b9862f",
+  "icons": [
+    { "src": "icons/member-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/member-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/member-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/member-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
