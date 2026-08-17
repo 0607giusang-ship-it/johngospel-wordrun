@@ -281,6 +281,8 @@
 
   .onboard-card { max-width: 420px; margin: 0 auto; }
 
+  .status-note.save-error-note { color: var(--danger); font-weight: 700; }
+
   .photo-upload-wrap { margin-top: 10px; }
   .photo-preview {
     display: block;
@@ -475,6 +477,9 @@
         <button class="action-btn primary" id="applySyncCodeBtn" type="button">코드 적용</button>
       </div>
       <p class="status-note" id="syncStatusNote"></p>
+      <!-- 저장 실패(용량 초과) 알림. 실패했을 때만 뜬다 — syncStatusNote 는 렌더마다 덮어써지므로
+           이 경고는 따로 둔다. -->
+      <p class="status-note save-error-note" id="saveErrorNote" style="display:none;"></p>
     </div>
 
     <div class="tabs" role="tablist">
@@ -787,8 +792,58 @@
     } catch (e) { return null; }
   }
 
+  // ---------- 저장 용량 관리 ----------
+  // 필사 사진은 base64 로 한 장이 대략 90만 자다. 이걸 주차별로 계속 쌓아 두면 5주차 전후에
+  // localStorage 한도를 넘고, 그 뒤로는 사진뿐 아니라 퀴즈 답안·진행상황·페어링 정보까지
+  // **모든 저장이 조용히 중단된다**(21주 프로그램이라 도달이 사실상 확정적).
+  // 지난 주 사진을 다시 보여주는 화면은 없고(모든 렌더가 getWeekData(state.week) 만 그린다),
+  // 사진은 업로드 시점에 이미 Firestore 에 올라가 있으므로 로컬에서 지워도 유실이 아니다.
+  // 지우는 것은 오직 base64 사진 문자열이고 photoSubmittedAt·verified 등 나머지 메타는 남긴다.
+  function pruneOtherWeekPhotos() {
+    var currentKey = String(state.week);
+    var weekData = state.weekData || {};
+    var removed = 0;
+    for (var key in weekData) {
+      if (!Object.prototype.hasOwnProperty.call(weekData, key)) continue;
+      if (key === currentKey) continue;
+      var wd = weekData[key];
+      if (wd && wd.photoDataUrl) {
+        delete wd.photoDataUrl;
+        removed++;
+      }
+    }
+    return removed;
+  }
+
+  function isQuotaError(e) {
+    if (!e) return false;
+    return e.name === "QuotaExceededError" ||
+      e.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+      e.code === 22 || e.code === 1014;
+  }
+
+  // 저장이 용량 때문에 실패하면 조용히 넘어가지 않는다. 사용자는 저장된 줄 알고 계속 쓰는데
+  // 실제로는 아무것도 안 남기 때문이다. 실패했을 때만 띄우고, 다음 저장이 성공하면 지운다.
+  function setSaveErrorNotice(show) {
+    var el = document.getElementById("saveErrorNote");
+    if (!el) return;
+    if (show) {
+      el.textContent = "기기 저장 공간이 부족해서 최근 변경사항이 이 기기에 저장되지 못했어요. 리더에게 알려 주세요.";
+      el.style.display = "";
+    } else if (el.style.display !== "none") {
+      el.textContent = "";
+      el.style.display = "none";
+    }
+  }
+
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    pruneOtherWeekPhotos();
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      setSaveErrorNotice(false);
+    } catch (e) {
+      if (isQuotaError(e)) setSaveErrorNotice(true);
+    }
   }
 
   var loaded = load();
@@ -797,6 +852,10 @@
   if (typeof state.week !== "number" || state.week < 1) state.week = 1;
   if (state.week > TOTAL_WEEKS) state.week = TOTAL_WEEKS;
   if (typeof state.dayIndex !== "number" || state.dayIndex < 0 || state.dayIndex > 6) state.dayIndex = 0;
+
+  // 기존 사용자 치유 — 이 수정 이전 버전을 쓰던 기기에는 지난 주 사진이 이미 쌓여 있다.
+  // 첫 로드에서 바로 비워 준다(정리할 게 있을 때만 저장 — 불필요한 쓰기를 만들지 않는다).
+  if (pruneOtherWeekPhotos() > 0) save();
 
   // ---------- Firebase 페어링(조원별 등록 QR) ----------
   // URL 쿼리에 g(groupId)·m(memberId)이 있으면(리더의 등록 QR을 스캔한 직후) 영구 저장하고
