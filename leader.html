@@ -550,6 +550,9 @@
 
     var ua = navigator.userAgent || "";
     var isKakao = /KAKAOTALK/i.test(ua);
+    // 아이폰과 안드로이드는 탈출 방법이 다르다. openExternal 스킴도, 우측 상단 ⋯ 메뉴도
+    // 안드로이드 카카오톡 얘기고, 아이폰 카카오톡에는 둘 다 없다(하단 사파리 아이콘이 탈출구).
+    var isIOS = /iPhone|iPad|iPod/i.test(ua);
     var isOtherInApp = /(NAVER\(inapp|DaumApps|Instagram|FBAN|FBAV|FB_IAB|Line\/|everytimeApp|WhaleOn)/i.test(ua);
     if (!isKakao && !isOtherInApp) return;
 
@@ -562,11 +565,17 @@
 
     if (isKakao) {
       textEl.textContent = "카카오톡 안에서 열린 브라우저예요. 여기서는 앱 설치(홈 화면에 추가)와 QR·사진 관련 기능이 휴대폰 기종에 따라 막힐 수 있어요.";
-      noteEl.textContent = "버튼이 안 되면 오른쪽 위 ⋯ 메뉴를 눌러 '다른 브라우저로 열기'를 선택해 주세요.";
-      openBtn.style.display = "";
-      openBtn.addEventListener("click", function () {
-        location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(shareUrl);
-      });
+      if (isIOS) {
+        // 아이폰 카카오톡에는 openExternal 스킴도 ⋯ 메뉴도 없다. 버튼은 띄우지 않고
+        // 실제로 동작하는 방법(하단 사파리 아이콘)만 안내한다.
+        noteEl.textContent = "아래쪽 사파리(나침반) 아이콘을 눌러 사파리로 열어 주세요.";
+      } else {
+        noteEl.textContent = "버튼이 안 되면 오른쪽 위 ⋯ 메뉴를 눌러 '다른 브라우저로 열기'를 선택해 주세요.";
+        openBtn.style.display = "";
+        openBtn.addEventListener("click", function () {
+          location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(shareUrl);
+        });
+      }
     } else {
       textEl.textContent = "다른 앱 안의 간이 브라우저로 열렸어요. 여기서는 앱 설치(홈 화면에 추가)와 QR·사진 관련 기능이 막힐 수 있어요.";
       noteEl.textContent = "'링크 복사'를 누른 뒤 크롬·사파리 같은 기본 브라우저 주소창에 붙여넣어 주세요.";

@@ -32,8 +32,10 @@ var PRECACHE_URLS = [
   "member.html",
   "manifest-leader.json",
   "manifest-member.json",
+  "icons/leader-180.png",
   "icons/leader-192.png",
   "icons/leader-512.png",
+  "icons/member-180.png",
   "icons/member-192.png",
   "icons/member-512.png"
 ];
